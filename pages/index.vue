@@ -85,6 +85,7 @@ const gridStyle = computed(() => ({
     <AppHeader
       @info="activeOverlay = 'info'"
       @create="activeOverlay = 'create'"
+      @settings="activeOverlay = activeOverlay === 'settings' ? null : 'settings'"
     />
 
     <main v-if="hydrated" class="grid" :style="gridStyle">

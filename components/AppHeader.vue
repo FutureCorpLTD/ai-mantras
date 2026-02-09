@@ -10,6 +10,7 @@ const { getFontFamily } = useFonts()
 const emit = defineEmits<{
   info: []
   create: []
+  settings: []
 }>()
 
 // Title uses the same font settings as posters
@@ -87,9 +88,14 @@ const {
         fontSize: `${Math.round(13 * settings.navScale)}px`,
       }"
     >AI MANTRAS</h1>
-    <button class="glass-pill__btn" aria-label="Create new" @click="emit('create')">
-      <span class="material-symbols-outlined" :style="{ fontSize: `${Math.round(22 * settings.navScale)}px` }">add_circle</span>
-    </button>
+    <div class="glass-pill__right">
+      <button class="glass-pill__btn" aria-label="Create new" @click="emit('create')">
+        <span class="material-symbols-outlined" :style="{ fontSize: `${Math.round(22 * settings.navScale)}px` }">add_circle</span>
+      </button>
+      <button class="glass-pill__btn" aria-label="Settings" @click="emit('settings')">
+        <span class="material-symbols-outlined" :style="{ fontSize: `${Math.round(22 * settings.navScale)}px` }">menu</span>
+      </button>
+    </div>
   </header>
 </template>
 
@@ -210,6 +216,12 @@ const {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.glass-pill__right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .glass-pill__btn:hover { color: white; }

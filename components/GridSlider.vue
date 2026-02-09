@@ -52,7 +52,7 @@ const {
     <div class="grid-slider__rim"></div>
 
     <!-- Content -->
-    <span class="material-symbols-outlined grid-slider__icon">grid_view</span>
+    <span class="material-symbols-outlined grid-slider__icon" :style="{ fontSize: `${Math.round(22 * settings.navScale)}px` }">grid_view</span>
     <input
       type="range"
       :min="1"
@@ -152,9 +152,10 @@ const {
 
 /* Content */
 .grid-slider__icon {
-  font-size: 16px;
+  font-size: 22px;
   color: white;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+  line-height: 1;
 }
 
 .grid-slider__input {
@@ -195,6 +196,7 @@ const {
   min-width: 20px;
   text-align: right;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  line-height: 22px;
 }
 
 @media (max-width: 768px) {
