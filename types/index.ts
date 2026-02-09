@@ -13,6 +13,8 @@ export interface Mantra {
   // Custom colors for 'harmonic' scheme
   harmonicBg?: string
   harmonicFg?: string
+  // Taste feedback
+  liked?: boolean
 }
 
 export type ColorScheme = 'black-on-white' | 'white-on-black' | 'neon-on-black' | 'black-on-neon' | 'harmonic'

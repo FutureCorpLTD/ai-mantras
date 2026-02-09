@@ -45,7 +45,11 @@ async function generateMantra() {
   try {
     const response = await $fetch('/api/generate-mantra', {
       method: 'POST',
-      body: { tone: tone.value },
+      body: {
+        tone: tone.value,
+        liked: mantraStore.likedTexts,
+        rejected: mantraStore.rejectedTexts,
+      },
     })
     currentText.value = response.text
     randomizeStyle()
@@ -66,10 +70,17 @@ function accept() {
     previewWeight.value,
     previewColorScheme.value,
   )
+  // Clear immediately so user sees loading state
+  currentText.value = ''
   generateMantra()
 }
 
 function reject() {
+  if (currentText.value && currentText.value !== error.value) {
+    mantraStore.rejectText(currentText.value)
+  }
+  // Clear immediately so user sees loading state
+  currentText.value = ''
   generateMantra()
 }
 
@@ -151,9 +162,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 
 <template>
   <Teleport to="body">
-    <div class="create-overlay">
-      <button class="create-overlay__close" @click="emit('close')">&times;</button>
-
+    <div class="create-overlay" @click.self="emit('close')">
       <div class="create-overlay__content">
         <!-- Swipe card -->
         <div
@@ -186,13 +195,13 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
           <span class="create-overlay__tone-label">UTOPIAN</span>
         </div>
 
-        <!-- Action buttons -->
+        <!-- Thumbs — same as PosterView -->
         <div class="create-overlay__actions">
-          <button class="create-overlay__action create-overlay__action--reject" @click="reject">
-            &#10005;
+          <button class="create-overlay__thumb create-overlay__thumb--down" @click="reject">
+            👎
           </button>
-          <button class="create-overlay__action create-overlay__action--accept" @click="accept">
-            &#9829;
+          <button class="create-overlay__thumb create-overlay__thumb--up" @click="accept">
+            👍
           </button>
         </div>
       </div>
@@ -207,27 +216,12 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
   z-index: 200;
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.75);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 }
-
-.create-overlay__close {
-  position: absolute;
-  top: 12px;
-  right: 16px;
-  background: none;
-  border: none;
-  color: white;
-  font-size: 32px;
-  cursor: pointer;
-  opacity: 0.6;
-  z-index: 10;
-}
-
-.create-overlay__close:hover { opacity: 1; }
 
 .create-overlay__content {
   display: flex;
@@ -286,12 +280,12 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
   gap: 32px;
 }
 
-.create-overlay__action {
+.create-overlay__thumb {
+  background: none;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
   width: 56px;
   height: 56px;
-  border-radius: 50%;
-  border: 2px solid;
-  background: none;
   font-size: 24px;
   cursor: pointer;
   transition: all 0.15s;
@@ -300,24 +294,17 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
   justify-content: center;
 }
 
-.create-overlay__action--reject {
+.create-overlay__thumb:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.1);
+}
+
+.create-overlay__thumb--down:hover {
   border-color: #ff4444;
-  color: #ff4444;
 }
 
-.create-overlay__action--reject:hover {
-  background: #ff4444;
-  color: white;
-}
-
-.create-overlay__action--accept {
+.create-overlay__thumb--up:hover {
   border-color: #BBFF00;
-  color: #BBFF00;
-}
-
-.create-overlay__action--accept:hover {
-  background: #BBFF00;
-  color: black;
 }
 
 @keyframes pulse {

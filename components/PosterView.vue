@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Mantra } from '~/types'
 import { useMantraStore } from '~/stores/mantras'
-import { useSettingsStore } from '~/stores/settings'
 
 const props = defineProps<{
   mantra: Mantra
@@ -13,86 +12,75 @@ const emit = defineEmits<{
 }>()
 
 const mantraStore = useMantraStore()
-const settings = useSettingsStore()
 
 const currentIndex = computed(() =>
   mantraStore.sorted.findIndex(m => m.id === props.mantra.id)
 )
 
-const hasPrev = computed(() => currentIndex.value > 0)
+const isLiked = computed(() => props.mantra.liked === true)
 const hasNext = computed(() => currentIndex.value < mantraStore.sorted.length - 1)
-
-function goPrev() {
-  if (hasPrev.value) emit('navigate', mantraStore.sorted[currentIndex.value - 1])
-}
+const hasPrev = computed(() => currentIndex.value > 0)
 
 function goNext() {
-  if (hasNext.value) emit('navigate', mantraStore.sorted[currentIndex.value + 1])
+  if (hasNext.value) {
+    emit('navigate', mantraStore.sorted[currentIndex.value + 1])
+  } else if (hasPrev.value) {
+    emit('navigate', mantraStore.sorted[currentIndex.value - 1])
+  } else {
+    emit('close')
+  }
+}
+
+function handleLike() {
+  mantraStore.likeMantra(props.mantra.id)
+  goNext()
 }
 
 function handleDelete() {
-  const nextMantra = hasNext.value
-    ? mantraStore.sorted[currentIndex.value + 1]
-    : hasPrev.value
-      ? mantraStore.sorted[currentIndex.value - 1]
-      : null
   mantraStore.removeMantra(props.mantra.id)
-  nextMantra ? emit('navigate', nextMantra) : emit('close')
+  // After removal, the sorted list shifted — next poster is now at the same index
+  const sorted = mantraStore.sorted
+  if (sorted.length === 0) {
+    emit('close')
+  } else {
+    const nextIdx = Math.min(currentIndex.value, sorted.length - 1)
+    emit('navigate', sorted[Math.max(0, nextIdx)])
+  }
 }
 
 function onKeydown(e: KeyboardEvent) {
-  if (e.key === 'ArrowLeft') goPrev()
-  else if (e.key === 'ArrowRight') goNext()
-  else if (e.key === 'Escape') emit('close')
+  if (e.key === 'Escape') emit('close')
 }
 
 onMounted(() => window.addEventListener('keydown', onKeydown))
 onUnmounted(() => window.removeEventListener('keydown', onKeydown))
-
-let touchStartX = 0
-function onTouchStart(e: TouchEvent) { touchStartX = e.touches[0].clientX }
-function onTouchEnd(e: TouchEvent) {
-  const dx = e.changedTouches[0].clientX - touchStartX
-  if (Math.abs(dx) > 60) dx > 0 ? goPrev() : goNext()
-}
 </script>
 
 <template>
   <Teleport to="body">
     <div
       class="poster-view"
-      @touchstart="onTouchStart"
-      @touchend="onTouchEnd"
+      @click.self="emit('close')"
     >
-      <div class="poster-view__header">
-        <button class="poster-view__btn poster-view__btn--delete" @click="handleDelete">
-          <span class="material-symbols-outlined">delete</span>
-        </button>
-        <button class="poster-view__btn poster-view__btn--close" @click="emit('close')">
-          <span class="material-symbols-outlined">close</span>
-        </button>
-      </div>
-
-      <div class="poster-view__content">
-        <button
-          v-if="hasPrev"
-          class="poster-view__nav poster-view__nav--prev"
-          @click="goPrev"
-        >
-          <span class="material-symbols-outlined">chevron_left</span>
-        </button>
-
-        <!-- Give MantraCard a concrete width — it needs this for the reference canvas -->
+      <div class="poster-view__stage">
         <div class="poster-view__card">
           <MantraCard :mantra="mantra" />
         </div>
+      </div>
 
+      <!-- Thumbs below poster -->
+      <div class="poster-view__actions">
         <button
-          v-if="hasNext"
-          class="poster-view__nav poster-view__nav--next"
-          @click="goNext"
+          class="poster-view__thumb poster-view__thumb--down"
+          @click="handleDelete"
         >
-          <span class="material-symbols-outlined">chevron_right</span>
+          👎
+        </button>
+        <button
+          class="poster-view__thumb poster-view__thumb--up"
+          @click="handleLike"
+        >
+          👍
         </button>
       </div>
     </div>
@@ -104,64 +92,60 @@ function onTouchEnd(e: TouchEvent) {
   position: fixed;
   inset: 0;
   z-index: 200;
-  background: rgba(0, 0, 0, 0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  background: rgba(0, 0, 0, 0.75);
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
   overflow: hidden;
 }
 
-.poster-view__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  flex-shrink: 0;
-}
-
-.poster-view__btn {
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.6);
-  cursor: pointer;
-  transition: color 0.15s;
-  display: flex;
-  align-items: center;
-  padding: 4px;
-}
-
-.poster-view__btn:hover { color: white; }
-.poster-view__btn--delete .material-symbols-outlined { color: #ff4444; }
-
-.poster-view__content {
-  flex: 1;
+.poster-view__stage {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 0 16px 16px;
-  min-height: 0;
-}
-
-/* The card wrapper gives MantraCard a concrete width for the reference canvas */
-.poster-view__card {
   width: 100%;
   max-width: 500px;
+  padding: 0 24px;
 }
 
-.poster-view__nav {
+.poster-view__card {
+  width: 100%;
+}
+
+.poster-view__actions {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.poster-view__thumb {
   background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  font-size: 24px;
   cursor: pointer;
-  transition: color 0.15s;
-  padding: 16px 8px;
-  flex-shrink: 0;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.poster-view__nav:hover { color: rgba(255, 255, 255, 0.7); }
-.poster-view__nav .material-symbols-outlined { font-size: 36px; }
+.poster-view__thumb:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.1);
+}
 
-@media (max-width: 768px) {
-  .poster-view__nav { display: none; }
+.poster-view__thumb--down:hover {
+  border-color: #ff4444;
+}
+
+.poster-view__thumb--up:hover {
+  border-color: #BBFF00;
 }
 </style>

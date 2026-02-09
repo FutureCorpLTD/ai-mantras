@@ -5,6 +5,8 @@ import { resolve } from 'path'
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const tone: number = body?.tone ?? 0.5
+  const liked: string[] = body?.liked ?? []
+  const rejected: string[] = body?.rejected ?? []
 
   const config = useRuntimeConfig()
   const apiKey = config.anthropicApiKey
@@ -69,6 +71,15 @@ export default defineEventHandler(async (event) => {
   ]
   const structure = structures[Math.floor(Math.random() * structures.length)]
 
+  // Build taste feedback section
+  let feedbackSection = ''
+  if (liked.length > 0) {
+    feedbackSection += `\n\n## User Taste — LOVED these (generate more like these):\n${liked.map(t => `- ${t}`).join('\n')}`
+  }
+  if (rejected.length > 0) {
+    feedbackSection += `\n\n## User Taste — DELETED these (avoid this style, tone, and structure):\n${rejected.map(t => `- ${t}`).join('\n')}`
+  }
+
   const client = new Anthropic({ apiKey })
 
   const message = await client.messages.create({
@@ -78,7 +89,7 @@ export default defineEventHandler(async (event) => {
     messages: [
       {
         role: 'user',
-        content: `${sourceContent}\n\n---\n\nGenerate exactly ONE new mantra.\n\nTone: ${toneDesc} (tone value: ${tone})\nThematic angle: ${angle}\nStructural approach: ${structure}\n\nRules:\n- Maximum 12 words, ideally under 8\n- ALL CAPS\n- No quotation marks\n- Must work as a standalone poster — bold, immediate, no explanation needed\n- Be WILDLY original — don't repeat or closely echo any seed mantra above\n- Surprise me. Be unexpected. Avoid the obvious.\n- Sound like it belongs on a building or a protest sign, not a motivational mug\n\nRespond with ONLY the mantra text, nothing else.`,
+        content: `${sourceContent}${feedbackSection}\n\n---\n\nGenerate exactly ONE new mantra.\n\nTone: ${toneDesc} (tone value: ${tone})\nThematic angle: ${angle}\nStructural approach: ${structure}\n\nRules:\n- Maximum 12 words, ideally under 8\n- ALL CAPS\n- No quotation marks\n- Must work as a standalone poster — bold, immediate, no explanation needed\n- Be WILDLY original — don't repeat or closely echo any seed mantra above\n- Surprise me. Be unexpected. Avoid the obvious.\n- Sound like it belongs on a building or a protest sign, not a motivational mug\n${liked.length > 0 ? '- Pay close attention to what the user LOVED — match that energy and style\n' : ''}${rejected.length > 0 ? '- AVOID anything resembling what the user DELETED\n' : ''}\nRespond with ONLY the mantra text, nothing else.`,
       },
     ],
   })

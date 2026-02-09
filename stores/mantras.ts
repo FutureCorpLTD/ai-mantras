@@ -5,13 +5,19 @@ import { POSTER_FONTS } from '~/data/font-catalog'
 import { generateHarmonicPair } from '~/composables/useColorHarmony'
 
 const FIXED_SCHEMES: ColorScheme[] = ['black-on-white', 'white-on-black', 'neon-on-black', 'black-on-neon']
+const MAX_FEEDBACK = 20
 
 function randomFrom<T>(arr: readonly T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]
 }
 
 function generateId(): string {
-  return crypto.randomUUID()
+  // crypto.randomUUID() requires secure context (HTTPS) — not available on HTTP over USB tether
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+  // Fallback: random hex string
+  return Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join('')
 }
 
 function createMantraFromSeed(seed: { text: string; tone: number }, index: number): Mantra {
@@ -30,6 +36,8 @@ export const useMantraStore = defineStore('mantras', {
   state: () => ({
     mantras: [] as Mantra[],
     initialized: false,
+    // Taste feedback: keeps deleted mantra texts to steer AI away from them
+    rejectedTexts: [] as string[],
   }),
 
   getters: {
@@ -38,6 +46,13 @@ export const useMantraStore = defineStore('mantras', {
     ),
 
     count: (state) => state.mantras.length,
+
+    /** Most recent liked mantra texts (capped) — used as positive examples for AI */
+    likedTexts: (state): string[] =>
+      state.mantras
+        .filter(m => m.liked)
+        .slice(0, MAX_FEEDBACK)
+        .map(m => m.text),
   },
 
   actions: {
@@ -60,7 +75,25 @@ export const useMantraStore = defineStore('mantras', {
     },
 
     removeMantra(id: string) {
+      const mantra = this.mantras.find(m => m.id === id)
+      if (mantra) {
+        // Save rejected text for AI feedback (cap at MAX_FEEDBACK)
+        this.rejectedTexts = [mantra.text, ...this.rejectedTexts].slice(0, MAX_FEEDBACK)
+      }
       this.mantras = this.mantras.filter(m => m.id !== id)
+    },
+
+    /** Toggle liked status on a mantra */
+    likeMantra(id: string) {
+      const mantra = this.mantras.find(m => m.id === id)
+      if (mantra) {
+        mantra.liked = !mantra.liked
+      }
+    },
+
+    /** Save a rejected text (from CreateOverlay swipe-left) */
+    rejectText(text: string) {
+      this.rejectedTexts = [text, ...this.rejectedTexts].slice(0, MAX_FEEDBACK)
     },
 
     randomizeFonts() {
