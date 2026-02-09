@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-01-01',
-  devtools: { enabled: true },
+  devtools: { enabled: false },
 
   modules: [
     '@nuxtjs/tailwindcss',
@@ -14,7 +14,10 @@ export default defineNuxtConfig({
     port: 3000,
   },
 
-  css: ['~/assets/css/main.css'],
+  css: [
+    'material-symbols/outlined.css',
+    '~/assets/css/main.css',
+  ],
 
   runtimeConfig: {
     // Server-only (not exposed to client)

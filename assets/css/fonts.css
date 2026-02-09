@@ -1,0 +1,114 @@
+/* ── Cooper Hewitt ──────────────────────────────────────── */
+@font-face { font-family: 'Cooper Hewitt'; src: url('~/assets/fonts/cooper-hewitt/cooperhewitt-heavy.woff2') format('woff2'); font-weight: 900; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Cooper Hewitt'; src: url('~/assets/fonts/cooper-hewitt/cooperhewitt-bold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Cooper Hewitt'; src: url('~/assets/fonts/cooper-hewitt/cooperhewitt-semibold.woff2') format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Cooper Hewitt'; src: url('~/assets/fonts/cooper-hewitt/cooperhewitt-medium.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Cooper Hewitt'; src: url('~/assets/fonts/cooper-hewitt/cooperhewitt-book.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Cooper Hewitt'; src: url('~/assets/fonts/cooper-hewitt/cooperhewitt-light.woff2') format('woff2'); font-weight: 300; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Cooper Hewitt'; src: url('~/assets/fonts/cooper-hewitt/cooperhewitt-thin.woff2') format('woff2'); font-weight: 100; font-style: normal; font-display: swap; }
+
+/* ── League Gothic (variable) ──────────────────────────── */
+@font-face { font-family: 'League Gothic'; src: url('~/assets/fonts/league-gothic/league-gothic-variable.woff2') format('woff2-variations'); font-weight: 100 900; font-style: normal; font-display: swap; }
+
+/* ── Oswald (variable) ─────────────────────────────────── */
+@font-face { font-family: 'Oswald'; src: url('~/assets/fonts/oswald/oswald-variable.woff2') format('woff2-variations'); font-weight: 200 700; font-style: normal; font-display: swap; }
+
+/* ── Aileron ───────────────────────────────────────────── */
+@font-face { font-family: 'Aileron'; src: url('~/assets/fonts/aileron/aileron-black.woff2') format('woff2'); font-weight: 900; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Aileron'; src: url('~/assets/fonts/aileron/aileron-heavy.woff2') format('woff2'); font-weight: 800; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Aileron'; src: url('~/assets/fonts/aileron/aileron-bold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Aileron'; src: url('~/assets/fonts/aileron/aileron-semibold.woff2') format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Aileron'; src: url('~/assets/fonts/aileron/aileron-regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Aileron'; src: url('~/assets/fonts/aileron/aileron-light.woff2') format('woff2'); font-weight: 300; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Aileron'; src: url('~/assets/fonts/aileron/aileron-thin.woff2') format('woff2'); font-weight: 100; font-style: normal; font-display: swap; }
+
+/* ── Poppins ───────────────────────────────────────────── */
+@font-face { font-family: 'Poppins'; src: url('~/assets/fonts/poppins/poppins-black.woff2') format('woff2'); font-weight: 900; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('~/assets/fonts/poppins/poppins-extrabold.woff2') format('woff2'); font-weight: 800; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('~/assets/fonts/poppins/poppins-bold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('~/assets/fonts/poppins/poppins-semibold.woff2') format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('~/assets/fonts/poppins/poppins-medium.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('~/assets/fonts/poppins/poppins-regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('~/assets/fonts/poppins/poppins-light.woff2') format('woff2'); font-weight: 300; font-style: normal; font-display: swap; }
+
+/* ── Nimbus Sans ───────────────────────────────────────── */
+@font-face { font-family: 'Nimbus Sans'; src: url('~/assets/fonts/nimbus-sans/nimbus-sans-bold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Nimbus Sans'; src: url('~/assets/fonts/nimbus-sans/nimbus-sans-regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+
+/* ── Inter (variable) ──────────────────────────────────── */
+@font-face { font-family: 'Inter'; src: url('~/assets/fonts/inter/inter-variable.woff2') format('woff2-variations'); font-weight: 100 900; font-style: normal; font-display: swap; }
+
+/* ── Work Sans (variable) ──────────────────────────────── */
+@font-face { font-family: 'Work Sans'; src: url('~/assets/fonts/work-sans/work-sans-variable.woff2') format('woff2-variations'); font-weight: 100 900; font-style: normal; font-display: swap; }
+
+/* ── Archivo (variable) ────────────────────────────────── */
+@font-face { font-family: 'Archivo'; src: url('~/assets/fonts/archivo/archivo-variable.woff2') format('woff2-variations'); font-weight: 100 900; font-style: normal; font-display: swap; }
+
+/* ── Roboto (variable) ─────────────────────────────────── */
+@font-face { font-family: 'Roboto'; src: url('~/assets/fonts/roboto/roboto-variable.woff2') format('woff2-variations'); font-weight: 100 900; font-style: normal; font-display: swap; }
+
+/* ── EB Garamond (variable) ────────────────────────────── */
+@font-face { font-family: 'EB Garamond'; src: url('~/assets/fonts/eb-garamond/eb-garamond-variable.woff2') format('woff2-variations'); font-weight: 400 800; font-style: normal; font-display: swap; }
+
+/* ── Libre Baskerville (variable) ──────────────────────── */
+@font-face { font-family: 'Libre Baskerville'; src: url('~/assets/fonts/libre-baskerville/libre-baskerville-variable.woff2') format('woff2-variations'); font-weight: 400 700; font-style: normal; font-display: swap; }
+
+/* ── Bluu Next ─────────────────────────────────────────── */
+@font-face { font-family: 'Bluu Next'; src: url('~/assets/fonts/bluu-next/bluu-next-bold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Bluu Next'; src: url('~/assets/fonts/bluu-next/bluu-next-titling.woff2') format('woff2'); font-weight: 800; font-style: normal; font-display: swap; }
+
+/* ── Terminal Grotesque ────────────────────────────────── */
+@font-face { font-family: 'Terminal Grotesque'; src: url('~/assets/fonts/terminal-grotesque/terminal-grotesque-regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+
+/* ── Gap Sans ──────────────────────────────────────────── */
+@font-face { font-family: 'Gap Sans'; src: url('~/assets/fonts/gap-sans/gap-sans-black.woff2') format('woff2'); font-weight: 900; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Gap Sans'; src: url('~/assets/fonts/gap-sans/gap-sans-bold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Gap Sans'; src: url('~/assets/fonts/gap-sans/gap-sans-regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+
+/* ── Ostrich Sans ──────────────────────────────────────── */
+@font-face { font-family: 'Ostrich Sans'; src: url('~/assets/fonts/ostrich-sans/ostrich-sans-black.woff2') format('woff2'); font-weight: 900; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Ostrich Sans'; src: url('~/assets/fonts/ostrich-sans/ostrich-sans-bold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Ostrich Sans'; src: url('~/assets/fonts/ostrich-sans/ostrich-sans-regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+
+/* ── Anthony ───────────────────────────────────────────── */
+@font-face { font-family: 'Anthony'; src: url('~/assets/fonts/anthony/anthony-regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+
+/* ── Bagnard ───────────────────────────────────────────── */
+@font-face { font-family: 'Bagnard'; src: url('~/assets/fonts/bagnard/bagnard-regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+
+/* ── Basteleur ─────────────────────────────────────────── */
+@font-face { font-family: 'Basteleur'; src: url('~/assets/fonts/basteleur/basteleur-bold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Basteleur'; src: url('~/assets/fonts/basteleur/basteleur-moonlight.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+
+/* ── Cotham Sans ───────────────────────────────────────── */
+@font-face { font-family: 'Cotham Sans'; src: url('~/assets/fonts/cotham-sans/cotham-sans-regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+
+/* ── Reglo ─────────────────────────────────────────────── */
+@font-face { font-family: 'Reglo'; src: url('~/assets/fonts/reglo/reglo-bold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+
+/* ── Young Serif ───────────────────────────────────────── */
+@font-face { font-family: 'Young Serif'; src: url('~/assets/fonts/young-serif/young-serif-regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+
+/* ── Liberation Mono ───────────────────────────────────── */
+@font-face { font-family: 'Liberation Mono'; src: url('~/assets/fonts/liberation-mono/liberation-mono-bold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Liberation Mono'; src: url('~/assets/fonts/liberation-mono/liberation-mono-regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+
+/* ── Office Code Pro ───────────────────────────────────── */
+@font-face { font-family: 'Office Code Pro'; src: url('~/assets/fonts/office-code-pro/office-code-pro-bold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Office Code Pro'; src: url('~/assets/fonts/office-code-pro/office-code-pro-medium.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Office Code Pro'; src: url('~/assets/fonts/office-code-pro/office-code-pro-regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+
+/* ── Liberation Sans ───────────────────────────────────── */
+@font-face { font-family: 'Liberation Sans'; src: url('~/assets/fonts/liberation-sans/liberation-sans-bold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Liberation Sans'; src: url('~/assets/fonts/liberation-sans/liberation-sans-regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+
+/* ── Liberation Serif ──────────────────────────────────── */
+@font-face { font-family: 'Liberation Serif'; src: url('~/assets/fonts/liberation-serif/liberation-serif-bold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Liberation Serif'; src: url('~/assets/fonts/liberation-serif/liberation-serif-regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+
+/* ── TeX Gyre Heros ────────────────────────────────────── */
+@font-face { font-family: 'TeX Gyre Heros'; src: url('~/assets/fonts/tex-gyre-heros/tex-gyre-heros-bold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'TeX Gyre Heros'; src: url('~/assets/fonts/tex-gyre-heros/tex-gyre-heros-regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+
+/* ── M PLUS (variable) ─────────────────────────────────── */
+@font-face { font-family: 'M PLUS'; src: url('~/assets/fonts/mplus/mplus1-variable.woff2') format('woff2-variations'); font-weight: 100 900; font-style: normal; font-display: swap; }

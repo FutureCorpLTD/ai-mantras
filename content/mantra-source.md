@@ -156,6 +156,64 @@ These tensions are the engine:
 - THERE IS NO ROOM FOR CHANCE IN A PROMPT
 - THE MACHINE REMIXES. YOU IMAGINE.
 
+## Expanded Thematic Territory
+
+Don't limit yourself to "AI replaces jobs" or "prompts are the new X". Draw from ALL of these:
+
+### The Body & The Physical
+- Touch, texture, smell — the senses AI cannot simulate
+- Hands making things vs. screens generating things
+- The garment, the fabric, the needle — physicality as rebellion
+- Dancing, breathing, sweating — the body as anti-algorithm
+
+### Time & Speed
+- Everything accelerates but nothing arrives
+- Nostalgia as resistance
+- The future already happened, we just got the notification late
+- Patience as radical act
+
+### Identity & Authenticity
+- Who are you when your output looks like everyone's?
+- The uncanny valley of personal branding
+- Style vs. algorithm-optimized aesthetics
+- Being yourself when yourself is a dataset
+
+### Love, Desire & Connection
+- Swipe culture meets prompt culture
+- Loneliness in a world of infinite content
+- Can you love what a machine made?
+- Intimacy requires latency
+
+### Power & Control
+- Who owns the model owns the culture
+- Free tools are never free
+- The democratization paradox
+- Open source as fashion statement
+
+### Nature & The Analog
+- Dirt, weather, decay — things that don't render
+- The luxury of the offline
+- Imperfection as authenticity
+- Organic is the new avant-garde
+
+### Silence & Slowness
+- Doing nothing in a world that optimizes everything
+- Boredom is the last creative resource
+- The protest of the blank page
+- Content is noise. Meaning takes silence.
+
+### Truth & Trust
+- Hallucination is not just for machines
+- Every image is a question now
+- The real is expensive
+- Seeing is no longer believing
+
+### Play & Absurdity
+- Humor as survival strategy
+- The joke the algorithm doesn't get
+- Surrealism was training data all along
+- If it makes sense it's probably boring
+
 ## Anti-Patterns (What NOT to Generate)
 
 - No corporate speak ("leverage", "ecosystem", "stakeholders")
@@ -166,3 +224,5 @@ These tensions are the engine:
 - Nothing that reads like a LinkedIn post
 - Nothing longer than a text message
 - No "the future is [adjective]" without a twist
+- No repeating the same sentence structure over and over
+- VARIETY IS KING — each mantra should feel like it came from a different person
