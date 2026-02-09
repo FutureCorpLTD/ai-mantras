@@ -1,7 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk'
-// Import source material at build time — bundled into the serverless function.
-// readFileSync doesn't work on Vercel because project files aren't on disk at runtime.
-import sourceContent from '~/content/mantra-source.md?raw'
+// Source material exported as a TS string — bundles correctly in Nitro serverless (Vercel, Netlify).
+import { MANTRA_SOURCE } from '~/server/utils/mantra-source'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -81,7 +80,7 @@ export default defineEventHandler(async (event) => {
     messages: [
       {
         role: 'user',
-        content: `${sourceContent}${feedbackSection}\n\n---\n\nGenerate exactly ONE new mantra.\n\nTone: ${toneDesc} (tone value: ${tone})\nThematic angle: ${angle}\nStructural approach: ${structure}\n\nRules:\n- Maximum 12 words, ideally under 8\n- ALL CAPS\n- No quotation marks\n- Must work as a standalone poster — bold, immediate, no explanation needed\n- Be WILDLY original — don't repeat or closely echo any seed mantra above\n- Surprise me. Be unexpected. Avoid the obvious.\n- Sound like it belongs on a building or a protest sign, not a motivational mug\n${liked.length > 0 ? '- Pay close attention to what the user LOVED — match that energy and style\n' : ''}${rejected.length > 0 ? '- AVOID anything resembling what the user DELETED\n' : ''}\nRespond with ONLY the mantra text, nothing else.`,
+        content: `${MANTRA_SOURCE}${feedbackSection}\n\n---\n\nGenerate exactly ONE new mantra.\n\nTone: ${toneDesc} (tone value: ${tone})\nThematic angle: ${angle}\nStructural approach: ${structure}\n\nRules:\n- Maximum 12 words, ideally under 8\n- ALL CAPS\n- No quotation marks\n- Must work as a standalone poster — bold, immediate, no explanation needed\n- Be WILDLY original — don't repeat or closely echo any seed mantra above\n- Surprise me. Be unexpected. Avoid the obvious.\n- Sound like it belongs on a building or a protest sign, not a motivational mug\n${liked.length > 0 ? '- Pay close attention to what the user LOVED — match that energy and style\n' : ''}${rejected.length > 0 ? '- AVOID anything resembling what the user DELETED\n' : ''}\nRespond with ONLY the mantra text, nothing else.`,
       },
     ],
   })
