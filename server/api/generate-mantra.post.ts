@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk'
-import { readFileSync } from 'fs'
-import { resolve } from 'path'
+// Import source material at build time — bundled into the serverless function.
+// readFileSync doesn't work on Vercel because project files aren't on disk at runtime.
+import sourceContent from '~/content/mantra-source.md?raw'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -13,15 +14,6 @@ export default defineEventHandler(async (event) => {
 
   if (!apiKey) {
     throw createError({ statusCode: 500, message: 'ANTHROPIC_API_KEY not configured' })
-  }
-
-  // Read mantra source material
-  let sourceContent: string
-  try {
-    const sourcePath = resolve(process.cwd(), 'content/mantra-source.md')
-    sourceContent = readFileSync(sourcePath, 'utf-8')
-  } catch {
-    throw createError({ statusCode: 500, message: 'Could not read mantra-source.md' })
   }
 
   // Build tone description
