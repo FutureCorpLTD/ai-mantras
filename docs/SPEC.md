@@ -2,7 +2,7 @@
 
 ## Overview
 
-A single-page web app that displays AI-themed typographic poster slogans in a responsive grid gallery. Users can browse, generate new mantras via AI, and download posters as images. Mobile-first design modeled after the Apple Photos library UX.
+A single-page web app that displays AI-themed typographic poster slogans in a responsive grid gallery. Users can browse, generate new mantras via AI, curate their collection with like/dislike feedback, and customize the visual presentation. The app uses client-side localStorage — each visitor has their own independent collection.
 
 ---
 
@@ -14,112 +14,93 @@ The primary view. A responsive CSS grid of poster thumbnails.
 
 **Grid behavior:**
 - Default: 3 columns
-- Pinch-to-zoom (mobile) changes column count
-- Desktop: slider at bottom of viewport for zoom level
-- Range: 1 column (full-width) to 20+ columns (mosaic)
-- At 1 column: download (⬇) and print (🖨) icons visible below each poster
+- Desktop: slider at bottom of viewport for column count (1–20)
 - Posters ordered reverse-chronologically (newest top-left)
-- Grid gap is proportional to column count (fewer columns = more gap)
+- Grid gap configurable via control panel
 
-**Header:**
-- Center: "AI MANTRAS" title
-- Top-left: ⓘ info button
-- Top-right: ⊕ create new button
+**Header (glass pill nav):**
+- Left: ⓘ info button
+- Center: "AI MANTRAS" title (uses poster font settings, scalable)
+- Right: ⊕ create new + ☰ settings hamburger
+- Apple Liquid Glass UI effect (refraction, frost, depth, dispersion)
+
+**Bottom bar (glass slider):**
+- Grid icon + range slider + column count label
+- Same glass effect as header, matched height
+- Hidden on mobile (< 768px)
 
 **Poster thumbnails:**
-- Pure CSS/font rendering (no images until download)
-- Aspect ratio determined by poster size setting (A4 portrait or 9:16)
-- Color scheme applied per poster (black/white, white/black, or #BBFF00 combos)
-- Click/tap opens single poster view
+- Pure CSS/font rendering via MantraCard component
+- Reference-canvas at 1000px width, scaled to fit grid cell
+- Color scheme per poster (4 fixed schemes + harmonic)
+- Click/tap opens PosterView overlay
 
-### 2. Single Poster View
+### 2. PosterView (Single Poster)
 
-Full-screen display of one poster.
+Full-screen overlay for viewing and curating a single poster.
 
-- Poster centered, respecting margin settings
-- Swipe left/right or arrow keys to navigate between posters
-- Close button (✕) returns to grid
-- Actions: download, print, delete
-- Background: site background color setting
+- Blurred backdrop (tap to close)
+- MantraCard centered at large size
+- Thumbs up (👍) and thumbs down (👎) centered below poster
+- **Thumbs up**: toggles liked status, advances to next poster
+- **Thumbs down**: deletes poster (saves text to rejected list for AI feedback), advances to next
+- If collection empty after delete, closes overlay
+- Escape key closes
 
 ### 3. Info Overlay (ⓘ)
 
-Triggered by top-left info icon.
+Triggered by info icon.
 
 Content:
-- Brief project description (2-3 sentences)
+- Brief project description
 - Artistic references (Holzer, Coupland, Burrill)
 - "Made by Marc Kremers"
 - Links: Instagram, GitHub repo
-- Close button
+- Close on Escape or click outside
 
 ### 4. Create New Overlay (⊕)
 
-Triggered by top-right plus icon. Tinder-style card swipe experience.
+Triggered by plus icon. Tinder-style card generation experience.
 
 **Card display:**
-- Shows one freshly AI-generated mantra as a poster card
-- Card is styled with current typography/color settings
+- Shows one freshly AI-generated mantra as a MantraCard
+- Random font, weight, and color scheme per generation
+- Swipeable via touch drag or mouse drag
 
-**Controls below card:**
-- ✕ Reject (swipe left) — discard and generate next
-- ♥ Accept (swipe right) — add to grid collection
-- 🖨 Print/save as PDF
-- ⬇ Download as hi-res JPG
+**Controls:**
+- Thumbs up (👍): accept → add to collection, generate next
+- Thumbs down (👎): reject → save text to rejectedTexts, generate next
+- Tone slider: DYSTOPIAN ↔ UTOPIAN (affects prompt)
 
-**Tone slider:**
-- Horizontal slider: "DYSTOPIAN" ← → "UTOPIAN"
-- Affects the prompt sent to Claude API
-- 0 = dystopian, 0.5 = neutral, 1 = utopian
+**Taste feedback:**
+- Sends `liked` texts (from liked mantras) and `rejected` texts (from deleted/rejected) to API
+- AI steers toward liked patterns, away from rejected ones
+- Capped at 20 examples each
 
 **Generation:**
-- Calls `/api/generate-mantra` server route
-- Server route sends `mantra-source.md` as context to Claude API
-- Tone slider value included in prompt
-- Returns a single mantra string
+- Calls `POST /api/generate-mantra` with tone, liked, rejected
+- Server picks random thematic angle + structural constraint for variety
+- Temperature: 1.0 for maximum creativity
+- Loading: pulse animation, "GENERATING..." text
+- Error: "GENERATION FAILED. TRY AGAIN."
 
-### 5. Control Panel (Shift+X)
+### 5. Control Panel (☰ / Shift+X)
 
-Hidden panel toggled by `Shift+X` keyboard shortcut.
+Accessible via hamburger menu icon or Shift+X keyboard shortcut.
 
-**Typography section:**
-- Font: dropdown populated from `/assets/fonts/` directory
-- Font options: weight, style, variable axes (dynamic per selected font)
-- Letter-spacing: slider, default center (0), range negative to positive
-- Line-height: slider, default center (0/auto), range tight to loose
-- Font-size: AUTO by default — calculates maximum size that fits poster dimensions. Short text = huge type. Long text = smaller type. Always fills the space.
-- Case: dropdown — UPPERCASE (default), lowercase, Title Case, Sentence case, Small Caps
-- Emoji replacement: toggle ON/OFF — replaces words with emoji equivalents where possible
+**Sections:**
+1. Typography: font picker, weight, letter-spacing, line-height, text case
+2. Poster Size: A4 Portrait / Social Story
+3. Color: scheme selector, randomize (fixed or harmonic)
+4. Layout: viewport margins, grid gap, poster padding, background color
+5. Nav: margin, padding, content scale
+6. Poster Style: border radius, lite mode, paper effect placeholders
+7. Glass Effect: refraction, depth, dispersion, frost, tint color + opacity
 
-**Poster size section:**
-- Dropdown: A4 Portrait (210×297mm ratio) / Social Story (9:16 ratio)
-- Applies to all posters in grid
-
-**Color section:**
-- For now: random alternation between 3 schemes:
-  - Black text on white background
-  - White text on black background
-  - #BBFF00 (neon yellow-green) — either as text or background
-- Future: full color picker per scheme
-
-**Layout section:**
-- Viewport margins (all sides)
-- Grid gap (auto-adjusts with column count)
-- Single poster margins (presentation view)
-- Site background color picker
-
-**Poster style section:**
-- "Lite mode" toggle (default OFF) — flat CSS divs, no effects
-- 3D paper controls (when lite mode OFF):
-  - Curl amount (0–100)
-  - Angle/tilt (0–360)
-  - Crumple intensity (0–100)
-  - Paper texture (none / light / heavy)
-- These controls are baked in for future development — placeholder values OK initially
-
-**Persistence:**
-- All settings save to localStorage via Pinia store
-- Restored on next visit
+**Behavior:**
+- All changes apply immediately (reactive)
+- All settings auto-saved to localStorage
+- Settings versioning: when defaults change, stale localStorage auto-resets
 
 ---
 
@@ -130,15 +111,18 @@ Hidden panel toggled by `Shift+X` keyboard shortcut.
 **Request body:**
 ```json
 {
-  "tone": 0.5
+  "tone": 0.5,
+  "liked": ["VIBE CODING IS THE NEW LITERACY", "THE TOOL CHANGED. THE TASTE DIDN'T."],
+  "rejected": ["SOME BAD MANTRA"]
 }
 ```
 
 **Server behavior:**
-1. Read `/content/mantra-source.md`
-2. Construct prompt with tone value
-3. Call Claude API (claude-sonnet-4-5-20250929)
-4. Return single mantra string
+1. Import mantra source material (TS string constant, serverless-safe)
+2. Pick random thematic angle (20 options) and structural constraint (10 options)
+3. Build prompt with tone description, angle, structure, and taste feedback
+4. Call Claude API (claude-sonnet-4-5-20250929, temperature 1.0, max_tokens 100)
+5. Return single mantra string
 
 **Response:**
 ```json
@@ -147,49 +131,38 @@ Hidden panel toggled by `Shift+X` keyboard shortcut.
 }
 ```
 
-**Environment:** Requires `ANTHROPIC_API_KEY` in `.env`
+**Environment:** Requires `ANTHROPIC_API_KEY` in runtime config.
 
 ---
 
 ## Data Persistence
 
-### `data/mantras.json`
+### Client-side localStorage (via Pinia)
 
-Array of saved mantra objects. No database — flat JSON file (or localStorage for client-only mode).
+No shared database. Each visitor has independent data.
 
-```json
-[
-  {
-    "id": "uuid-v4",
-    "text": "PROTECT ME FROM WHAT I PROMPT",
-    "createdAt": "2026-02-08T20:00:00Z",
-    "tone": 0.3,
-    "font": "cooper-hewitt",
-    "fontWeight": "heavy",
-    "colorScheme": "white-on-black"
-  }
-]
-```
+**Mantras store:**
+- `mantras: Mantra[]` — poster collection
+- `rejectedTexts: string[]` — deleted texts for AI feedback (max 20)
+- `initialized: boolean` — seed data loaded flag
 
-### Settings persistence
+**Settings store:**
+- All control panel values
+- Auto-versioned via `SETTINGS_VERSION` constant
 
-All control panel values stored in Pinia with `localStorage` persistence plugin.
+### Seed data
+58 hand-written mantras in `data/seed-mantras.ts`. Loaded on first visit with random fonts and color schemes.
 
 ---
 
 ## Poster Rendering
 
-### Display (screen)
-- Pure CSS + web fonts
-- `<div>` with text, styled via inline styles from settings
-- Auto-sizing: use CSS `clamp()` or JS calculation to maximize font size within poster dimensions
-
-### Export (download)
-- Use `html2canvas` or `dom-to-image-more` to render poster div to canvas
-- Export as:
-  - PNG (transparent background option)
-  - JPG (hi-res, 300dpi equivalent)
-  - PDF (for print)
+### Reference-canvas approach
+- MantraCard renders at fixed 1000px width
+- CSS `transform: scale()` fits to actual container size
+- Text auto-sized via binary search (useAutoSize composable)
+- Font loaded via `document.fonts.load()` before measurement
+- Text never breaks words, never hyphenates, never reflows on external changes
 
 ---
 
@@ -198,25 +171,17 @@ All control panel values stored in Pinia with `localStorage` persistence plugin.
 | Key | Action |
 |-----|--------|
 | `Shift+X` | Toggle control panel |
-| `Escape` | Close any overlay |
-| `←` `→` | Navigate posters in single view |
 | `Shift+N` | Open create new overlay |
+| `Escape` | Close any overlay |
+| `→` | Accept mantra (CreateOverlay) |
+| `←` | Reject mantra (CreateOverlay) |
 
 ---
 
 ## Mobile Considerations
 
-- Touch: pinch-to-zoom for grid columns
-- Swipe: left/right in create new overlay and single poster view
+- Bottom grid slider hidden on mobile
+- Swipe gestures in CreateOverlay (touch drag)
 - No hover states — all interactions are tap-based
-- Control panel: slide up from bottom on mobile
-- Test via USB: `npm run dev -- --host` → access via `http://<mac-ip>:3000`
-
----
-
-## Performance
-
-- No images loaded until export — everything is CSS text
-- Poster grid uses virtual scrolling if collection exceeds ~100 items
-- Font loading: subset WOFF2 files, preload active font
-- Lazy render: only visible grid cells render full poster styling
+- Test via USB tether: `npm run dev -- --host` → `http://<mac-ip>:3000`
+- crypto.randomUUID fallback for non-HTTPS contexts

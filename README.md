@@ -2,7 +2,11 @@
 
 Typographic poster generator for the AI age.
 
-Bold, punchy slogans about AI, creativity, and the future of work — displayed as a grid gallery of posters you can browse, generate, and download. Inspired by Jenny Holzer's *Truisms*, Douglas Coupland's "I Miss My Pre-Internet Brain", and Anthony Burrill's typographic prints.
+Bold, punchy slogans about AI, creativity, and the future of work — displayed as a grid gallery of posters you can browse, generate, and curate. Inspired by Jenny Holzer's *Truisms*, Douglas Coupland's "I Miss My Pre-Internet Brain", and Anthony Burrill's typographic prints.
+
+## Live
+
+**https://ai-mantras-theta.vercel.app/**
 
 ## Quick Start
 
@@ -13,30 +17,34 @@ npm run dev
 
 Open http://localhost:3000
 
-To test on your phone (connected via USB), use:
+To test on your phone (connected via USB tether):
 ```bash
 npm run dev -- --host
 ```
-
 Then open `http://<your-mac-ip>:3000` on your phone.
 
 ## Stack
 
 - **Nuxt 3** + Vue 3 + TypeScript
 - **Tailwind CSS** — Styling
-- **Pinia** — State management + persistence
-- **Claude API** — AI-powered mantra generation
+- **Pinia** — State management + localStorage persistence
+- **Claude API** — AI-powered mantra generation (claude-sonnet-4-5-20250929)
+- **colord** — Harmonious color generation
 - **Local WOFF2 Fonts** — 29 open-source families
 
 ## How It Works
 
 1. Browse a grid gallery of AI-themed typographic posters
-2. Pinch/zoom to change grid columns (1–20+), like Apple Photos
+2. Use the bottom slider to change grid columns (1–20)
 3. Tap any poster to see it full-screen
-4. Hit ⊕ to generate new mantras via Claude API — swipe right to keep, left to reject
-5. Adjust tone from dystopian to utopian with a slider
-6. Download any poster as a hi-res image
-7. Customize typography, colors, and poster style via the control panel (Shift+X)
+4. Thumbs up to keep, thumbs down to delete — your feedback trains the AI
+5. Hit ⊕ to generate new mantras — swipe/tap to accept or reject
+6. Adjust tone from dystopian to utopian with a slider
+7. Open ☰ to customize typography, colors, layout, and glass effects
+
+## Data & Privacy
+
+All poster data lives in your browser's localStorage. There is no shared database — each visitor gets their own independent collection. Nobody can see or modify your posters.
 
 ## Context
 
@@ -55,6 +63,6 @@ Mantra seed content in `/content/mantra-source.md`
 
 ## Links
 
+- **Live:** https://ai-mantras-theta.vercel.app/
 - **Repo:** https://github.com/FutureCorpLTD/ai-mantras
-- **Live:** TBD (Vercel)
 - **Author:** Marc Kremers — [@marckremers](https://instagram.com/marckremers)

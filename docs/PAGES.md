@@ -2,7 +2,7 @@
 
 ## Single Page Architecture
 
-AI Mantras is a single-page application. All views are overlays and state changes on the main grid page.
+AI Mantras is a single-page application. All views are overlays on the main grid page.
 
 ---
 
@@ -10,122 +10,103 @@ AI Mantras is a single-page application. All views are overlays and state change
 
 ### Layout
 - Full viewport height
-- `AppHeader` sticky top
-- `GridSlider` fixed bottom (desktop only)
-- Grid of `PosterCard` components filling remaining space
+- `AppHeader` fixed top (glass pill: ⓘ | AI MANTRAS | ⊕ ☰)
+- `GridSlider` fixed bottom (glass bar with column slider, desktop only)
+- Grid of `MantraCard` components filling remaining space
 
 ### State
 - `columns` — current grid column count (default: 3)
-- `mantras` — array of saved Mantra objects (from Pinia store)
-- `selectedMantra` — currently selected mantra (null = grid view)
+- `mantras` — array of Mantra objects (from Pinia store)
+- `selectedMantra` — currently viewed poster (null = grid view)
 - `activeOverlay` — 'info' | 'create' | 'settings' | null
+- `hydrated` — guards grid rendering until client-side Pinia hydration completes
 
 ### Behavior
-- On load: read mantras from store, render grid
-- If store empty: show seed mantras from `mantra-source.md` (pre-populate with ~20 seed mantras)
-- Grid columns controlled by pinch (mobile) or slider (desktop)
-- Tap poster → set `selectedMantra` → show `PosterFull`
-- ⓘ tap → `activeOverlay = 'info'`
-- ⊕ tap → `activeOverlay = 'create'`
-- Shift+X → `activeOverlay = 'settings'`
+- On mount: initialize mantra store (seeds 58 mantras if empty), set `hydrated = true`
+- Grid columns controlled by bottom slider (desktop)
+- Tap poster → open PosterView overlay
+- ⓘ tap → open InfoOverlay
+- ⊕ tap → open CreateOverlay
+- ☰ tap → toggle ControlPanel
+- Shift+X → toggle ControlPanel
+- Shift+N → open CreateOverlay
 - Escape → close any overlay
 
 ### SEO / Meta
 ```html
 <title>AI MANTRAS</title>
-<meta name="description" content="Typographic poster generator for the AI age. Inspired by Jenny Holzer, Douglas Coupland, and Anthony Burrill.">
+<meta name="description" content="Typographic poster generator for the AI age...">
 <meta property="og:title" content="AI MANTRAS">
 <meta property="og:description" content="Bold slogans about AI, creativity, and the future of work.">
-<meta property="og:type" content="website">
 ```
+
+---
+
+## Overlay: PosterView (tap any poster)
+
+Single poster with taste feedback.
+- Blurred backdrop overlay
+- Centered MantraCard at full size
+- Thumbs up (👍): likes mantra, advances to next poster
+- Thumbs down (👎): deletes mantra, saves text as rejected, advances to next
+- If no posters remain, closes overlay
+- Tap backdrop or press Escape to close
 
 ---
 
 ## Overlay: Info (ⓘ)
 
-### Content
-```
-AI MANTRAS
-
-Short, punchy typographic slogans about AI, creativity, 
-and the future of work.
-
-Inspired by Jenny Holzer's Truisms, Douglas Coupland's 
-"I Miss My Pre-Internet Brain", and Anthony Burrill's 
-typographic prints.
-
-Built by Marc Kremers as a live vibe-coding demo for 
-ESMOD Paris.
-
-[Instagram] [GitHub]
-```
-
-### Behavior
-- Slide in from left
-- Backdrop blur
-- Close on ✕, click outside, or Escape
+Project information.
+- Brief description, artistic references, credits
+- Links: Instagram, GitHub
+- Close on Escape or click outside
 
 ---
 
 ## Overlay: Create New (⊕)
 
-### Layout
-- Full-screen overlay with backdrop blur
-- Centered `SwipeCard` showing generated mantra
-- `ToneSlider` below card
-- Action buttons below slider: ✕ ♥ 🖨 ⬇
-
-### Behavior
-1. On open: call `/api/generate-mantra` with current tone
-2. Display mantra as styled poster card
-3. User swipes right (♥) → save to collection, generate next
-4. User swipes left (✕) → discard, generate next
-5. User taps 🖨 → print/PDF current card
-6. User taps ⬇ → download current card as image
-7. Tone slider change → next generation uses new tone value
-8. Close on ✕ button or Escape
-
-### Loading State
-- While waiting for API: subtle pulse animation on card
-- Error state: "GENERATION FAILED. TRY AGAIN." displayed as mantra-style text
+Tinder-style mantra generation.
+- Calls `/api/generate-mantra` with tone + liked/rejected feedback
+- Displays generated mantra as a styled MantraCard
+- Swipe or tap thumbs up to accept (adds to collection)
+- Swipe or tap thumbs down to reject (saves text, generates next)
+- Tone slider (DYSTOPIAN ↔ UTOPIAN) controls generation mood
+- Loading state: pulse animation, "GENERATING..." placeholder
+- Error state: "GENERATION FAILED. TRY AGAIN."
 
 ---
 
-## Overlay: Control Panel (Shift+X)
+## Overlay: Control Panel (☰ or Shift+X)
 
-### Layout — Desktop
-- Slide-in panel from right edge
-- Width: 360px
-- Full viewport height
-- Scrollable content
-- Semi-transparent background
+Settings panel with live-updating controls.
+- Toggle open/close via hamburger icon or Shift+X
+- All changes apply immediately
+- All settings persisted to localStorage
 
-### Layout — Mobile
-- Slide-up panel from bottom
-- Full width
-- Max height: 70vh
-- Scrollable content
-- Handle bar at top for drag-to-close
-
-### Sections (in order)
-1. Typography (FontPicker)
-2. Poster Size (SizePicker)
-3. Color (ColorPicker)
-4. Layout (LayoutControls)
-5. Poster Style (PaperControls)
-
-### Behavior
-- Toggle open/close with Shift+X
-- All changes apply immediately (reactive)
-- All settings auto-saved to localStorage
-- Close on Shift+X or ✕
+### Sections
+1. **Typography**: Font picker, weight, letter-spacing, line-height, text case
+2. **Poster Size**: A4 Portrait / Social Story (9:16)
+3. **Color**: Scheme selector + randomize buttons (fixed schemes or harmonic)
+4. **Layout**: Viewport margins, grid gap, poster padding, background color
+5. **Nav**: Margin, padding, content scale
+6. **Poster Style**: Border radius, lite mode toggle, paper effect placeholders
+7. **Glass Effect**: Refraction, depth, dispersion, frost, tint color + opacity
 
 ---
 
 ## Pre-populated Content
 
-On first visit (empty store), populate with seed mantras from the "Seed Mantras" section of `mantra-source.md`. This gives the grid an immediate visual impact rather than being empty.
+On first visit (empty store), 58 seed mantras populate the grid with random fonts and color schemes. Seed data lives in `data/seed-mantras.ts`, sourced from `content/mantra-source.md`.
 
-Seed count: ~30 mantras (the hand-written ones from mantra-source.md).
+---
 
-Each gets a random color scheme assignment on first load.
+## Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `☰` (hamburger icon) | Toggle control panel |
+| `Shift+X` | Toggle control panel |
+| `Shift+N` | Open create new overlay |
+| `Escape` | Close any overlay |
+| `→` | Accept mantra (in CreateOverlay) |
+| `←` | Reject mantra (in CreateOverlay) |

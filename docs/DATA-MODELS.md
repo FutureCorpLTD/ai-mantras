@@ -6,16 +6,21 @@
 
 ```typescript
 interface Mantra {
-  id: string              // UUID v4
+  id: string              // UUID or random hex (fallback for non-HTTPS)
   text: string            // The mantra text (always stored uppercase)
   createdAt: string       // ISO 8601 datetime
   tone: number            // 0 (dystopian) to 1 (utopian)
   font: string            // Font family slug (e.g., 'cooper-hewitt')
-  fontWeight: string      // Font weight (e.g., 'heavy', 'bold', '700')
+  fontWeight: string      // Font weight (e.g., '700', '800', '900')
   colorScheme: ColorScheme
+  // Custom colors for 'harmonic' scheme
+  harmonicBg?: string     // Hex background color
+  harmonicFg?: string     // Hex foreground color
+  // Taste feedback
+  liked?: boolean         // User explicitly liked this mantra
 }
 
-type ColorScheme = 'black-on-white' | 'white-on-black' | 'neon-on-black' | 'black-on-neon'
+type ColorScheme = 'black-on-white' | 'white-on-black' | 'neon-on-black' | 'black-on-neon' | 'harmonic'
 ```
 
 ### Settings (Control Panel)
@@ -23,71 +28,78 @@ type ColorScheme = 'black-on-white' | 'white-on-black' | 'neon-on-black' | 'blac
 ```typescript
 interface Settings {
   // Typography
-  font: string            // Active poster font slug
+  font: string            // Active poster font slug (or 'random')
   fontWeight: string      // Active weight
-  fontStyle: string       // 'normal' | 'italic'
-  letterSpacing: number   // em units, 0 = default, negative/positive
+  fontStyle: 'normal' | 'italic'
+  letterSpacing: number   // em units, 0 = default
   lineHeight: number      // multiplier, 1.1 = default
   textCase: TextCase
-  emojiReplace: boolean   // Replace words with emoji equivalents
+  emojiReplace: boolean
 
   // Poster size
   posterFormat: PosterFormat
 
   // Color
-  colorMode: 'auto' | 'black-on-white' | 'white-on-black' | 'neon'
+  colorMode: 'auto' | ColorScheme
+
+  // Poster inner padding
+  posterPadding: number   // % of poster dimension
 
   // Layout
   viewportMargin: number  // px
-  gridGap: number         // px base (scales with column count)
+  gridGap: number         // px base
   singlePosterMargin: number // px
   backgroundColor: string // hex
 
-  // Poster style
-  liteMode: boolean       // Flat CSS (default OFF)
+  // Nav
+  navMargin: number       // px from viewport edges
+  navPadding: number      // px inner padding
+  navScale: number        // 0.5–2 multiplier for nav content size
+
+  // Display
+  displayMode: DisplayMode
+  liteMode: boolean
   paperCurl: number       // 0–100
   paperAngle: number      // 0–360
   paperCrumple: number    // 0–100
   paperTexture: 'none' | 'light' | 'heavy'
 
+  // Poster style
+  borderRadius: number    // px
+
+  // Glass effect (nav bar / bottom bar)
+  glassRefraction: number  // 0–100
+  glassDepth: number       // 0–100
+  glassDispersion: number  // 0–100
+  glassFrost: number       // 0–100
+  glassTint: string        // hex color
+  glassTintOpacity: number // 0–100
+
   // Grid
-  columns: number         // Current column count (1–20+)
+  columns: number         // Current column count (1–20)
 }
 
 type TextCase = 'uppercase' | 'lowercase' | 'titlecase' | 'sentencecase' | 'smallcaps'
 type PosterFormat = 'a4-portrait' | 'social-story'
+type DisplayMode = 'poster' | 'kinetic'
 ```
 
 ### Font Metadata
 
 ```typescript
 interface FontFamily {
-  slug: string            // Folder name (e.g., 'cooper-hewitt')
-  name: string            // Display name (e.g., 'Cooper Hewitt')
+  slug: string
+  name: string
   category: 'sans' | 'serif' | 'mono' | 'display'
-  variable: boolean       // Is it a variable font?
-  weights: FontWeight[]   // Available weights
-  styles: FontStyle[]     // Available styles
-  axes?: VariableAxis[]   // Variable font axes (if variable)
+  variable: boolean
+  weights: FontWeight[]
+  styles: ('normal' | 'italic')[]
 }
 
 interface FontWeight {
-  name: string            // e.g., 'Heavy', 'Bold', 'Regular'
-  value: number           // CSS weight value (100–900)
+  name: string
+  value: number           // CSS 100–900
   file: string            // WOFF2 filename
-}
-
-interface FontStyle {
-  name: string            // 'Normal' | 'Italic'
-  value: string           // 'normal' | 'italic'
-}
-
-interface VariableAxis {
-  tag: string             // e.g., 'wght', 'wdth', 'opsz'
-  name: string            // e.g., 'Weight', 'Width'
-  min: number
-  max: number
-  default: number
 }
 ```
 
@@ -97,6 +109,8 @@ interface VariableAxis {
 // POST /api/generate-mantra
 interface GenerateMantraRequest {
   tone: number            // 0–1
+  liked?: string[]        // Texts user loved (positive examples, max 20)
+  rejected?: string[]     // Texts user deleted (negative examples, max 20)
 }
 
 interface GenerateMantraResponse {
@@ -106,22 +120,19 @@ interface GenerateMantraResponse {
 
 ## Data Storage
 
-### mantras.json (or localStorage)
+### Client-side only (localStorage via Pinia)
 
-```json
-{
-  "mantras": [
-    {
-      "id": "a1b2c3d4-...",
-      "text": "VIBE CODING IS THE NEW LITERACY",
-      "createdAt": "2026-02-08T20:00:00.000Z",
-      "tone": 0.5,
-      "font": "cooper-hewitt",
-      "fontWeight": "heavy",
-      "colorScheme": "white-on-black"
-    }
-  ]
-}
-```
+All data persists in the browser's localStorage. No shared database. Each visitor has an independent collection.
 
-For the initial build, mantras are stored in Pinia (persisted to localStorage). No server-side JSON file needed unless we want mantras to persist across deployments, in which case we'd add a simple JSON read/write API route or use Vercel KV.
+**Mantras store:**
+- `mantras: Mantra[]` — the poster collection
+- `initialized: boolean` — whether seed mantras have been loaded
+- `rejectedTexts: string[]` — deleted mantra texts for AI feedback (capped at 20)
+
+**Settings store:**
+- All Settings interface fields
+- Auto-versioned: `SETTINGS_VERSION` constant triggers reset when defaults change
+
+### Seed data
+
+On first visit (empty store), 58 seed mantras from `data/seed-mantras.ts` populate the grid with random fonts and color schemes.

@@ -3,50 +3,45 @@
 ## Core Stack
 
 ### Framework
-- **Nuxt 3** — Vue meta-framework with SSR, file-based routing, API routes
-- **Vue 3** — Composition API, reactive UI components
+- **Nuxt 3.21** — Vue meta-framework with SSR, file-based routing, API routes
+- **Vue 3.5** — Composition API, reactive UI components
 - **TypeScript** — Type safety throughout
 
 ### Styling
 - **Tailwind CSS** — Utility-first CSS
 - **@nuxtjs/tailwindcss** — Nuxt integration
+- Scoped CSS within components (BEM-style class naming)
 
 ### State Management
-- **Pinia** — Settings persistence, mantra collection
-- **@pinia/nuxt** — Nuxt integration
-- **pinia-plugin-persistedstate** — localStorage persistence for settings
+- **Pinia 2** — Settings persistence, mantra collection
+- **@pinia/nuxt 0.9** — Nuxt integration
+- **pinia-plugin-persistedstate 3.x** — localStorage persistence (registered via manual plugin, not Nuxt module)
+- Settings versioning: `SETTINGS_VERSION` constant auto-resets stale localStorage
 
-### Utilities
-- **@vueuse/nuxt** — Composition utilities (useSwipe, usePinch, useLocalStorage, useKeyboardShortcut)
+### Color
+- **colord** — Harmonious color pair generation (~3.2KB)
+- Plugins: harmonies, a11y (WCAG contrast checking)
 
 ### AI Generation
 - **@anthropic-ai/sdk** — Claude API for mantra generation (server-side only)
+- Model: claude-sonnet-4-5-20250929, temperature 1.0
+- Source material bundled as TS string constant in `server/utils/` (serverless-safe)
 
-### Image Export
-- **dom-to-image-more** — Render CSS poster to high-res image for download
-- Alternative: **html2canvas** if dom-to-image has issues
-
-### Swipe UX (Create New Overlay)
-- Research needed. Candidates:
-  - **@vueuse/gesture** — Vue 3 gesture recognition
-  - **vue3-card-swiper** — Tinder-style card component
-  - Custom implementation using touch events + CSS transforms
+### Swipe UX
+- Custom implementation using touch events + mouse events + CSS transforms
+- No external gesture library needed
 
 ### Grid Gallery
-- Custom CSS Grid implementation with:
-  - **@vueuse/gesture** for pinch-to-zoom (mobile)
-  - CSS `grid-template-columns: repeat(var(--cols), 1fr)` dynamic columns
-  - Intersection Observer for virtualized rendering
+- CSS Grid with `grid-template-columns: repeat(N, 1fr)` dynamic columns
+- Desktop: range slider for column count (1–20)
 
-### 3D Paper Effects (Future)
-- CSS 3D transforms for basic curl/tilt
-- Optional: **Three.js** for advanced paper simulation
-- For now: CSS `perspective`, `rotateX/Y`, `box-shadow` for depth
-
-### Glass UI (Optional)
-- CSS `backdrop-filter: blur()` + `background: rgba()`
-- Apple Liquid Glass aesthetic via layered translucency
-- No external library needed — pure CSS
+### Glass UI
+- Apple Liquid Glass effect — custom composable (`useLiquidGlass`)
+- SVG displacement map for refraction (Chrome)
+- `backdrop-filter: blur()` for frost (all browsers)
+- CSS gradients for depth + rim light
+- Box-shadow for chromatic dispersion
+- Fully configurable: refraction, depth, dispersion, frost, tint
 
 ---
 
@@ -57,14 +52,11 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
     "@nuxtjs/tailwindcss": "^6.14.0",
-    "@pinia/nuxt": "^0.11.3",
-    "@vueuse/nuxt": "^14.1.0",
-    "dom-to-image-more": "^3.4.5",
-    "nuxt": "^3.15.0",
-    "pinia-plugin-persistedstate": "^4.2.0",
-    "uuid": "^11.0.0",
-    "vue": "^3.5.0",
-    "vue-router": "^4.6.0"
+    "@pinia/nuxt": "^0.9.0",
+    "colord": "^2.9.3",
+    "nuxt": "^3.21.0",
+    "pinia-plugin-persistedstate": "^3.2.3",
+    "vue": "^3.5.0"
   }
 }
 ```
@@ -81,7 +73,6 @@ export default defineNuxtConfig({
   modules: [
     '@nuxtjs/tailwindcss',
     '@pinia/nuxt',
-    '@vueuse/nuxt',
   ],
 
   css: ['~/assets/css/main.css'],
@@ -94,11 +85,10 @@ export default defineNuxtConfig({
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
         { name: 'description', content: 'Typographic poster generator for the AI age' },
       ],
+      link: [
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined' },
+      ],
     },
-  },
-
-  pinia: {
-    storesDirs: ['./stores/**'],
   },
 
   runtimeConfig: {
@@ -116,14 +106,15 @@ export default defineNuxtConfig({
 
 ### Two Concerns
 
-1. **Site UI Font** — Inter or system-ui for interface elements
+1. **Material Symbols** — Google Material Symbols Outlined for UI icons
 2. **Poster Display Fonts** — 29 WOFF2 families from `/assets/fonts/` for poster typography
 
 ### Font Loading Strategy
 
-- Declare all font-faces in `/assets/css/fonts.css`
-- Only load the currently selected poster font (via dynamic `@font-face` or CSS class)
-- Preload the default font (Cooper Hewitt Heavy or Nimbus Sans Bold)
+- All 29 font-faces declared in `/assets/css/fonts.css`
+- All fonts loaded at page load (WOFF2 files are small)
+- Font catalog in `/data/font-catalog.ts` maps slugs to CSS names
+- `document.fonts.load()` called before text measurement in auto-sizer
 
 ### Key Poster Fonts
 
@@ -154,14 +145,20 @@ NUXT_PUBLIC_SITE_URL=http://localhost:3000
 
 ## Hosting
 
-- **Vercel** — Nuxt 3 preset, automatic deployment from GitHub
-- **GitHub** — FutureCorpLTD/ai-mantras
+- **Vercel** — https://ai-mantras-theta.vercel.app/
+- **GitHub** — FutureCorpLTD/ai-mantras (main branch)
 
 ### Vercel Config
 
-The Vercel import detected Nuxt framework. Ensure:
-1. `package.json` exists with dependencies
-2. `nuxt.config.ts` exists
-3. Build command: `nuxt build` (auto-detected)
-4. Output directory: `.output` (auto-detected)
-5. Add `ANTHROPIC_API_KEY` to Vercel environment variables
+Nuxt framework auto-detected. Key points:
+1. Build command: `nuxt build` (auto-detected)
+2. Output directory: `.output` (auto-detected)
+3. `ANTHROPIC_API_KEY` set in Vercel environment variables
+4. Source material bundled as TS string (not filesystem reads — `readFileSync` and `?raw` imports don't work in Nitro serverless)
+
+### Dev Server
+
+```bash
+npm run dev            # localhost:3000
+npm run dev -- --host  # 0.0.0.0:3000 (phone testing via USB tether)
+```
