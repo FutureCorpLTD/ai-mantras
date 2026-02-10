@@ -2,14 +2,27 @@
 import type { Mantra } from '~/types'
 import { useMantraStore } from '~/stores/mantras'
 import { useSettingsStore } from '~/stores/settings'
+import { usePinchZoom } from '~/composables/usePinchZoom'
+
+const runtimeConfig = useRuntimeConfig()
+const siteUrl = runtimeConfig.public.siteUrl as string
 
 useHead({
   title: 'AI MANTRAS',
   meta: [
-    { name: 'description', content: 'Typographic poster generator for the AI age. Inspired by Jenny Holzer, Douglas Coupland, and Anthony Burrill.' },
+    { name: 'description', content: 'Short, punchy typographic slogans about AI, creativity, and the future of work. Inspired by Jenny Holzer, Douglas Coupland, and Anthony Burrill.' },
     { property: 'og:title', content: 'AI MANTRAS' },
-    { property: 'og:description', content: 'Bold slogans about AI, creativity, and the future of work.' },
+    { property: 'og:description', content: 'Short, punchy typographic slogans about AI, creativity, and the future of work.' },
     { property: 'og:type', content: 'website' },
+    { property: 'og:url', content: siteUrl },
+    { property: 'og:site_name', content: 'AI MANTRAS' },
+    { property: 'og:image', content: `${siteUrl}/og-image.png` },
+    { property: 'og:image:width', content: '1200' },
+    { property: 'og:image:height', content: '630' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: 'AI MANTRAS' },
+    { name: 'twitter:description', content: 'Short, punchy typographic slogans about AI, creativity, and the future of work.' },
+    { name: 'twitter:image', content: `${siteUrl}/og-image.png` },
   ],
 })
 
@@ -17,13 +30,26 @@ const mantraStore = useMantraStore()
 const settings = useSettingsStore()
 
 // Wait for client-side Pinia hydration before rendering the grid.
-// This prevents the flash from SSR defaults (columns=3) to persisted values.
+// This prevents the flash from SSR defaults to persisted values.
 const hydrated = ref(false)
+const gridRef = ref<HTMLElement | null>(null)
 
 onMounted(() => {
   mantraStore.initialize()
-  // Pinia persisted state has loaded by the time onMounted fires
   hydrated.value = true
+
+  // Mobile: default to 1 column for first-time visitors
+  if (window.innerWidth <= 768 && !localStorage.getItem('settings')) {
+    settings.updateSetting('columns', 1)
+  }
+})
+
+// Pinch-to-zoom on grid: spread = fewer columns, pinch = more
+const columnsRef = computed(() => settings.columns)
+usePinchZoom(gridRef, columnsRef, {
+  min: 1,
+  max: 10,
+  onUpdate: (v) => settings.updateSetting('columns', v),
 })
 
 function handleShuffle() {
@@ -94,7 +120,7 @@ const gridStyle = computed(() => ({
       @settings="activeOverlay = activeOverlay === 'settings' ? null : 'settings'"
     />
 
-    <main v-if="hydrated" class="grid" :style="gridStyle">
+    <main v-if="hydrated" ref="gridRef" class="grid" :style="gridStyle">
       <MantraCard
         v-for="(mantra, i) in mantraStore.sorted"
         :key="mantra.id"
@@ -140,5 +166,6 @@ const gridStyle = computed(() => ({
 
 .grid {
   padding-bottom: 48px; /* space for grid slider */
+  touch-action: pan-y; /* allow vertical scroll, intercept pinch */
 }
 </style>

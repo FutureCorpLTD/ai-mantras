@@ -52,7 +52,6 @@ const {
     <div class="grid-slider__rim"></div>
 
     <!-- Content -->
-    <span class="material-symbols-outlined grid-slider__icon" :style="{ fontSize: `${Math.round(22 * settings.navScale)}px` }">grid_view</span>
     <input
       type="range"
       :min="1"
@@ -61,7 +60,6 @@ const {
       @input="settings.updateSetting('columns', Number(($event.target as HTMLInputElement).value))"
       class="grid-slider__input"
     />
-    <span class="grid-slider__label">{{ settings.columns }}</span>
   </div>
 </template>
 
@@ -97,6 +95,7 @@ const {
 
   isolation: isolate;
   overflow: hidden;
+  -webkit-transform: translateZ(0); /* Force GPU layer — fixes iOS fixed positioning */
 
   box-shadow:
     0 -6px 32px rgba(0, 0, 0, 0.25),
@@ -151,13 +150,6 @@ const {
 }
 
 /* Content */
-.grid-slider__icon {
-  font-size: 22px;
-  color: white;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
-  line-height: 1;
-}
-
 .grid-slider__input {
   -webkit-appearance: none;
   appearance: none;
@@ -188,20 +180,24 @@ const {
   cursor: pointer;
 }
 
-.grid-slider__label {
-  font-family: 'Cooper Hewitt', monospace;
-  font-size: 11px;
-  font-weight: 700;
-  color: white;
-  min-width: 20px;
-  text-align: right;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-  line-height: 22px;
-}
-
 @media (max-width: 768px) {
   .grid-slider {
-    display: none;
+    max-width: none;
+    margin-left: 16px !important;
+    margin-right: 16px !important;
+    margin-bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+
+  .grid-slider__input::-webkit-slider-thumb {
+    width: 22px;
+    height: 22px;
+  }
+
+  .grid-slider__input::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
   }
 }
 </style>

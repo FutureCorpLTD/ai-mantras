@@ -135,6 +135,7 @@ const {
 
   isolation: isolate;
   overflow: hidden;
+  -webkit-transform: translateZ(0); /* Force GPU layer — fixes iOS fixed positioning */
 
   box-shadow:
     0 10px 40px rgba(0, 0, 0, 0.35),
@@ -239,6 +240,9 @@ const {
   .glass-pill {
     max-width: none;
     border-radius: 100px;
+    margin-top: 8px !important;
+    margin-left: 8px !important;
+    margin-right: 8px !important;
   }
 }
 </style>

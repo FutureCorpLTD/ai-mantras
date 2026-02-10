@@ -3,6 +3,18 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-01-01',
   devtools: { enabled: false },
 
+  app: {
+    head: {
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+      ],
+      meta: [
+        { name: 'theme-color', content: '#BBFF00' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
+      ],
+    },
+  },
+
   modules: [
     '@nuxtjs/tailwindcss',
     '@pinia/nuxt',
@@ -23,7 +35,7 @@ export default defineNuxtConfig({
     // Server-only (not exposed to client)
     anthropicApiKey: process.env.ANTHROPIC_API_KEY,
     public: {
-      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://ai-mantras-theta.vercel.app',
     },
   },
 })
