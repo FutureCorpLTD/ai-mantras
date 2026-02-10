@@ -24,8 +24,18 @@ function onBackdrop(e: MouseEvent) {
           slogans, and Anthony Burrill's typographic prints.
         </p>
 
+        <p class="info-overlay__text">
+          Your collection and design changes are saved in your
+          browser and not visible to anyone else.
+        </p>
+
+        <p class="info-overlay__text">
+          Liking and disliking mantras helps the AI learn your
+          taste and generate better results.
+        </p>
+
         <p class="info-overlay__credit">
-          Built by Marc Kremers
+          Built by <a href="https://www.instagram.com/marckremers/" target="_blank" rel="noopener">Marc Kremers</a>
         </p>
 
         <div class="info-overlay__links">
@@ -96,6 +106,15 @@ function onBackdrop(e: MouseEvent) {
   font-size: 13px;
   color: rgba(255, 255, 255, 0.5);
   margin: 32px 0 16px;
+}
+
+.info-overlay__credit a {
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: underline;
+}
+
+.info-overlay__credit a:hover {
+  color: white;
 }
 
 .info-overlay__links {

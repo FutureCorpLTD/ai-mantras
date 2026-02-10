@@ -11,6 +11,12 @@ const { fontCatalog, getFontBySlug } = useFonts()
 
 const currentFont = computed(() => getFontBySlug(settings.font))
 
+const isLocal = computed(() => {
+  if (import.meta.server) return false
+  const h = window.location.hostname
+  return h === 'localhost' || h === '127.0.0.1' || h === '0.0.0.0'
+})
+
 const textCaseOptions: { value: TextCase; label: string }[] = [
   { value: 'uppercase', label: 'UPPERCASE' },
   { value: 'lowercase', label: 'lowercase' },
@@ -23,6 +29,23 @@ const formatOptions: { value: PosterFormat; label: string }[] = [
   { value: 'a4-portrait', label: 'A4 Portrait' },
   { value: 'social-story', label: 'Social Story (9:16)' },
 ]
+
+const saveStatus = ref('Save as Default')
+
+async function saveAsDefault() {
+  saveStatus.value = 'Saving…'
+  try {
+    await $fetch('/api/save-defaults', {
+      method: 'POST',
+      body: settings.$state,
+    })
+    saveStatus.value = 'Saved!'
+    setTimeout(() => { saveStatus.value = 'Save as Default' }, 2000)
+  } catch {
+    saveStatus.value = 'Error saving'
+    setTimeout(() => { saveStatus.value = 'Save as Default' }, 2000)
+  }
+}
 
 const colorOptions: { value: 'auto' | ColorScheme; label: string }[] = [
   { value: 'auto', label: 'Auto (Random)' },
@@ -252,8 +275,8 @@ const colorOptions: { value: 'auto' | ColorScheme; label: string }[] = [
             </label>
           </section>
 
-          <!-- Nav -->
-          <section class="cp-section">
+          <!-- Nav (dev only) -->
+          <section v-if="isLocal" class="cp-section">
             <h3 class="cp-section__title">Nav Bar</h3>
 
             <label class="cp-field">
@@ -287,8 +310,8 @@ const colorOptions: { value: 'auto' | ColorScheme; label: string }[] = [
             </label>
           </section>
 
-          <!-- Glass Effect -->
-          <section class="cp-section">
+          <!-- Glass Effect (dev only) -->
+          <section v-if="isLocal" class="cp-section">
             <h3 class="cp-section__title">Glass Effect</h3>
             <p class="cp-section__note">Refraction distortion: Chrome/Edge only</p>
 
@@ -375,6 +398,13 @@ const colorOptions: { value: 'auto' | ColorScheme; label: string }[] = [
                 @change="settings.updateSetting('liteMode', ($event.target as HTMLInputElement).checked)"
               />
             </label>
+          </section>
+
+          <!-- Save as Default (dev only) -->
+          <section v-if="isLocal" class="cp-section">
+            <button class="cp-btn" @click="saveAsDefault">
+              {{ saveStatus }}
+            </button>
           </section>
         </div>
       </div>

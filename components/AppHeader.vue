@@ -10,6 +10,7 @@ const { getFontFamily } = useFonts()
 const emit = defineEmits<{
   info: []
   create: []
+  shuffle: []
   settings: []
 }>()
 
@@ -91,6 +92,9 @@ const {
     <div class="glass-pill__right">
       <button class="glass-pill__btn" aria-label="Create new" @click="emit('create')">
         <span class="material-symbols-outlined" :style="{ fontSize: `${Math.round(22 * settings.navScale)}px` }">add_circle</span>
+      </button>
+      <button class="glass-pill__btn" aria-label="Shuffle styles" @click="emit('shuffle')">
+        <span class="material-symbols-outlined" :style="{ fontSize: `${Math.round(22 * settings.navScale)}px` }">shuffle</span>
       </button>
       <button class="glass-pill__btn" aria-label="Settings" @click="emit('settings')">
         <span class="material-symbols-outlined" :style="{ fontSize: `${Math.round(22 * settings.navScale)}px` }">menu</span>

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import type { Mantra, ColorScheme } from '~/types'
 import { SEED_MANTRAS } from '~/data/seed-mantras'
-import { POSTER_FONTS } from '~/data/font-catalog'
+import { POSTER_FONTS, fontCatalog } from '~/data/font-catalog'
 import { generateHarmonicPair } from '~/composables/useColorHarmony'
 
 const FIXED_SCHEMES: ColorScheme[] = ['black-on-white', 'white-on-black', 'neon-on-black', 'black-on-neon']
@@ -18,6 +18,16 @@ function generateId(): string {
   }
   // Fallback: random hex string
   return Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join('')
+}
+
+function randomWeightForFont(slug: string): string {
+  const font = fontCatalog.find(f => f.slug === slug)
+  if (!font) return randomFrom(['700', '800', '900'])
+  if (font.variable) {
+    // For variable fonts, pick a random weight 100–900
+    return String(Math.round((Math.random() * 800 + 100) / 100) * 100)
+  }
+  return String(font.weights[Math.floor(Math.random() * font.weights.length)].value)
 }
 
 function createMantraFromSeed(seed: { text: string; tone: number }, index: number): Mantra {
@@ -112,6 +122,21 @@ export const useMantraStore = defineStore('mantras', {
         harmonicBg: undefined,
         harmonicFg: undefined,
       }))
+    },
+
+    /** Shuffle all per-mantra styles: font, weight, color */
+    shuffleStyles() {
+      this.mantras = this.mantras.map(m => {
+        const font = randomFrom(POSTER_FONTS)
+        return {
+          ...m,
+          font,
+          fontWeight: randomWeightForFont(font),
+          colorScheme: randomFrom(FIXED_SCHEMES),
+          harmonicBg: undefined,
+          harmonicFg: undefined,
+        }
+      })
     },
 
     /** Re-roll using harmonious generated color pairs */

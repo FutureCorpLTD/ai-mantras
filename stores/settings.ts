@@ -1,64 +1,14 @@
 import { defineStore } from 'pinia'
 import type { Settings, TextCase, PosterFormat, DisplayMode, ColorScheme } from '~/types'
+import defaults from '~/data/default-settings.json'
 
 // Bump this whenever you change defaults below.
 // On next load, localStorage will auto-clear and pick up the new defaults.
 // No more manual localStorage.clear()!
-const SETTINGS_VERSION = 2
+const SETTINGS_VERSION = 3
 
 export const useSettingsStore = defineStore('settings', {
-  state: (): Settings => ({
-    // Typography
-    font: 'random',
-    fontWeight: '900',
-    fontStyle: 'normal',
-    letterSpacing: 0,
-    lineHeight: 0.95,
-    textCase: 'uppercase',
-    emojiReplace: false,
-
-    // Poster size
-    posterFormat: 'a4-portrait',
-
-    // Color
-    colorMode: 'auto',
-
-    // Poster inner padding
-    posterPadding: 8,
-
-    // Layout
-    viewportMargin: 0,
-    gridGap: 4,
-    singlePosterMargin: 40,
-    backgroundColor: '#888888',
-
-    // Nav
-    navMargin: 20,
-    navPadding: 12,
-    navScale: 1,
-
-    // Display — renderer-agnostic
-    displayMode: 'poster',
-    liteMode: true, // flat CSS for now
-    paperCurl: 0,
-    paperAngle: 0,
-    paperCrumple: 0,
-    paperTexture: 'none',
-
-    // Poster style
-    borderRadius: 16,
-
-    // Glass effect
-    glassRefraction: 71,
-    glassDepth: 74,
-    glassDispersion: 88,
-    glassFrost: 0,
-    glassTint: '#000000',
-    glassTintOpacity: 58,
-
-    // Grid
-    columns: 3,
-  }),
+  state: (): Settings => ({ ...defaults } as Settings),
 
   actions: {
     updateSetting<K extends keyof Settings>(key: K, value: Settings[K]) {
@@ -67,6 +17,14 @@ export const useSettingsStore = defineStore('settings', {
 
     resetToDefaults() {
       this.$reset()
+    },
+
+    /** Randomize global style settings (called by shuffle) */
+    randomizeStyle() {
+      this.letterSpacing = Math.round((Math.random() * 0.17 - 0.02) * 100) / 100 // -0.02 to 0.15
+      this.lineHeight = Math.round((Math.random() * 0.5 + 0.8) * 100) / 100      // 0.8 to 1.3
+      this.posterPadding = Math.floor(Math.random() * 11) + 4                      // 4 to 14
+      this.borderRadius = Math.floor(Math.random() * 25)                           // 0 to 24
     },
   },
 

@@ -26,6 +26,11 @@ onMounted(() => {
   hydrated.value = true
 })
 
+function handleShuffle() {
+  mantraStore.shuffleStyles()
+  settings.randomizeStyle()
+}
+
 // Overlay state
 type OverlayType = 'info' | 'create' | 'settings' | null
 const activeOverlay = ref<OverlayType>(null)
@@ -85,6 +90,7 @@ const gridStyle = computed(() => ({
     <AppHeader
       @info="activeOverlay = 'info'"
       @create="activeOverlay = 'create'"
+      @shuffle="handleShuffle"
       @settings="activeOverlay = activeOverlay === 'settings' ? null : 'settings'"
     />
 
