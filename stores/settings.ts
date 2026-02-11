@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
-import type { Settings, TextCase, PosterFormat, DisplayMode, ColorScheme } from '~/types'
+import type { Settings } from '~/types'
 import defaults from '~/data/default-settings.json'
 
 // Bump this whenever you change defaults below.
 // On next load, localStorage will auto-clear and pick up the new defaults.
 // No more manual localStorage.clear()!
-const SETTINGS_VERSION = 3
+const SETTINGS_VERSION = 4
 
 export const useSettingsStore = defineStore('settings', {
   state: (): Settings => ({ ...defaults } as Settings),

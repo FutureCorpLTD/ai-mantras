@@ -27,6 +27,9 @@ export const fontCatalog: FontFamily[] = [
       { name: 'Variable', value: 400, file: 'league-gothic-variable.woff2' },
     ],
     styles: ['normal'],
+    axes: [
+      { tag: 'wdth', min: 75, max: 100, default: 100 },
+    ],
   },
   {
     slug: 'oswald',
@@ -37,6 +40,9 @@ export const fontCatalog: FontFamily[] = [
       { name: 'Variable', value: 400, file: 'oswald-variable.woff2' },
     ],
     styles: ['normal'],
+    axes: [
+      { tag: 'wght', min: 200, max: 700, default: 400 },
+    ],
   },
   {
     slug: 'aileron',
@@ -93,6 +99,10 @@ export const fontCatalog: FontFamily[] = [
       { name: 'Variable', value: 400, file: 'inter-variable.woff2' },
     ],
     styles: ['normal', 'italic'],
+    axes: [
+      { tag: 'wght', min: 100, max: 900, default: 400 },
+      { tag: 'opsz', min: 14, max: 32, default: 14 },
+    ],
   },
   {
     slug: 'work-sans',
@@ -103,6 +113,9 @@ export const fontCatalog: FontFamily[] = [
       { name: 'Variable', value: 400, file: 'work-sans-variable.woff2' },
     ],
     styles: ['normal', 'italic'],
+    axes: [
+      { tag: 'wght', min: 100, max: 900, default: 400 },
+    ],
   },
   {
     slug: 'archivo',
@@ -113,6 +126,10 @@ export const fontCatalog: FontFamily[] = [
       { name: 'Variable', value: 400, file: 'archivo-variable.woff2' },
     ],
     styles: ['normal', 'italic'],
+    axes: [
+      { tag: 'wght', min: 100, max: 900, default: 400 },
+      { tag: 'wdth', min: 62, max: 125, default: 100 },
+    ],
   },
   {
     slug: 'roboto',
@@ -123,6 +140,10 @@ export const fontCatalog: FontFamily[] = [
       { name: 'Variable', value: 400, file: 'roboto-variable.woff2' },
     ],
     styles: ['normal', 'italic'],
+    axes: [
+      { tag: 'wght', min: 100, max: 900, default: 400 },
+      { tag: 'wdth', min: 75, max: 100, default: 100 },
+    ],
   },
   {
     slug: 'liberation-sans',
@@ -182,6 +203,9 @@ export const fontCatalog: FontFamily[] = [
       { name: 'Variable', value: 400, file: 'eb-garamond-variable.woff2' },
     ],
     styles: ['normal', 'italic'],
+    axes: [
+      { tag: 'wght', min: 400, max: 800, default: 400 },
+    ],
   },
   {
     slug: 'libre-baskerville',
@@ -192,6 +216,9 @@ export const fontCatalog: FontFamily[] = [
       { name: 'Variable', value: 400, file: 'libre-baskerville-variable.woff2' },
     ],
     styles: ['normal', 'italic'],
+    axes: [
+      { tag: 'wght', min: 400, max: 700, default: 400 },
+    ],
   },
   {
     slug: 'young-serif',
@@ -323,6 +350,9 @@ export const fontCatalog: FontFamily[] = [
       { name: 'Variable', value: 400, file: 'mplus1-variable.woff2' },
     ],
     styles: ['normal'],
+    axes: [
+      { tag: 'wght', min: 100, max: 900, default: 400 },
+    ],
   },
 ]
 

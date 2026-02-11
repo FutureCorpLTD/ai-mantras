@@ -2,7 +2,7 @@
 import { useSettingsStore } from '~/stores/settings'
 import { useMantraStore } from '~/stores/mantras'
 import { useFonts } from '~/composables/useFonts'
-import type { TextCase, PosterFormat, ColorScheme } from '~/types'
+import type { TextCase, PosterFormat } from '~/types'
 
 const emit = defineEmits<{ close: [] }>()
 const settings = useSettingsStore()
@@ -11,11 +11,8 @@ const { fontCatalog, getFontBySlug } = useFonts()
 
 const currentFont = computed(() => getFontBySlug(settings.font))
 
-const isLocal = computed(() => {
-  if (import.meta.server) return false
-  const h = window.location.hostname
-  return h === 'localhost' || h === '127.0.0.1' || h === '0.0.0.0'
-})
+const wghtAxis = computed(() => currentFont.value?.axes?.find(a => a.tag === 'wght'))
+const wdthAxis = computed(() => currentFont.value?.axes?.find(a => a.tag === 'wdth'))
 
 const textCaseOptions: { value: TextCase; label: string }[] = [
   { value: 'uppercase', label: 'UPPERCASE' },
@@ -29,49 +26,23 @@ const formatOptions: { value: PosterFormat; label: string }[] = [
   { value: 'a4-portrait', label: 'A4 Portrait' },
   { value: 'social-story', label: 'Social Story (9:16)' },
 ]
-
-const saveStatus = ref('Save as Default')
-
-async function saveAsDefault() {
-  saveStatus.value = 'Saving…'
-  try {
-    await $fetch('/api/save-defaults', {
-      method: 'POST',
-      body: settings.$state,
-    })
-    saveStatus.value = 'Saved!'
-    setTimeout(() => { saveStatus.value = 'Save as Default' }, 2000)
-  } catch {
-    saveStatus.value = 'Error saving'
-    setTimeout(() => { saveStatus.value = 'Save as Default' }, 2000)
-  }
-}
-
-const colorOptions: { value: 'auto' | ColorScheme; label: string }[] = [
-  { value: 'auto', label: 'Auto (Random)' },
-  { value: 'black-on-white', label: 'Black on White' },
-  { value: 'white-on-black', label: 'White on Black' },
-  { value: 'neon-on-black', label: 'Neon on Black' },
-  { value: 'black-on-neon', label: 'Black on Neon' },
-  { value: 'harmonic', label: 'Harmonic (Generated)' },
-]
 </script>
 
 <template>
   <Teleport to="body">
-    <div class="control-panel" @click.self="emit('close')">
-      <div class="control-panel__inner">
-        <div class="control-panel__header">
-          <h2 class="control-panel__title">SETTINGS</h2>
-          <div class="control-panel__header-right">
-            <span class="control-panel__autosave">auto-saved</span>
-            <button class="control-panel__close" @click="emit('close')">
+    <div class="poster-panel" @click.self="emit('close')">
+      <div class="poster-panel__inner">
+        <div class="poster-panel__header">
+          <h2 class="poster-panel__title">POSTER DESIGN</h2>
+          <div class="poster-panel__header-right">
+            <span class="poster-panel__shortcut">C</span>
+            <button class="poster-panel__close" @click="emit('close')">
               <span class="material-symbols-outlined">close</span>
             </button>
           </div>
         </div>
 
-        <div class="control-panel__sections">
+        <div class="poster-panel__sections">
           <!-- Typography -->
           <section class="cp-section">
             <h3 class="cp-section__title">Typography</h3>
@@ -115,7 +86,8 @@ const colorOptions: { value: 'auto' | ColorScheme; label: string }[] = [
               Re-roll fonts
             </button>
 
-            <label v-if="currentFont && currentFont.weights.length > 1" class="cp-field">
+            <!-- Weight: dropdown for static fonts, slider for variable fonts with wght axis -->
+            <label v-if="currentFont && !currentFont.variable && currentFont.weights.length > 1" class="cp-field">
               <span class="cp-field__label">Weight</span>
               <select
                 :value="settings.fontWeight"
@@ -128,15 +100,29 @@ const colorOptions: { value: 'auto' | ColorScheme; label: string }[] = [
               </select>
             </label>
 
-            <label v-if="currentFont?.variable" class="cp-field">
+            <label v-if="wghtAxis" class="cp-field">
               <span class="cp-field__label">Weight {{ settings.fontWeight }}</span>
               <input
                 type="range"
-                min="100"
-                max="900"
+                :min="wghtAxis.min"
+                :max="wghtAxis.max"
                 step="1"
                 :value="settings.fontWeight"
                 @input="settings.updateSetting('fontWeight', ($event.target as HTMLInputElement).value)"
+                class="cp-field__range"
+              />
+            </label>
+
+            <!-- Width: only shown for fonts with wdth axis -->
+            <label v-if="wdthAxis" class="cp-field">
+              <span class="cp-field__label">Width {{ settings.fontWidth }}%</span>
+              <input
+                type="range"
+                :min="wdthAxis.min"
+                :max="wdthAxis.max"
+                step="1"
+                :value="settings.fontWidth"
+                @input="settings.updateSetting('fontWidth', Number(($event.target as HTMLInputElement).value))"
                 class="cp-field__range"
               />
             </label>
@@ -211,22 +197,9 @@ const colorOptions: { value: 'auto' | ColorScheme; label: string }[] = [
           <!-- Color -->
           <section class="cp-section">
             <h3 class="cp-section__title">Color</h3>
-            <label class="cp-field">
-              <select
-                :value="settings.colorMode"
-                @change="settings.updateSetting('colorMode', ($event.target as HTMLSelectElement).value as any)"
-                class="cp-field__select"
-              >
-                <option v-for="o in colorOptions" :key="o.value" :value="o.value">{{ o.label }}</option>
-              </select>
-            </label>
 
-            <button class="cp-btn" @click="mantraStore.randomizeHarmonicColors()">
-              Re-roll harmonic colors
-            </button>
-
-            <button class="cp-btn cp-btn--secondary" @click="mantraStore.randomizeColors()">
-              Re-roll classic colors
+            <button class="cp-btn" @click="mantraStore.randomizeColors()">
+              Re-roll colors
             </button>
 
             <label class="cp-field">
@@ -236,142 +209,6 @@ const colorOptions: { value: 'auto' | ColorScheme; label: string }[] = [
                 :value="settings.backgroundColor"
                 @input="settings.updateSetting('backgroundColor', ($event.target as HTMLInputElement).value)"
                 class="cp-field__color"
-              />
-            </label>
-          </section>
-
-          <!-- Layout -->
-          <section class="cp-section">
-            <h3 class="cp-section__title">Grid</h3>
-
-            <label class="cp-field">
-              <span class="cp-field__label">Columns {{ settings.columns }}</span>
-              <input
-                type="range" min="1" max="20" step="1"
-                :value="settings.columns"
-                @input="settings.updateSetting('columns', Number(($event.target as HTMLInputElement).value))"
-                class="cp-field__range"
-              />
-            </label>
-
-            <label class="cp-field">
-              <span class="cp-field__label">Grid Gap {{ settings.gridGap }}px</span>
-              <input
-                type="range" min="0" max="24" step="1"
-                :value="settings.gridGap"
-                @input="settings.updateSetting('gridGap', Number(($event.target as HTMLInputElement).value))"
-                class="cp-field__range"
-              />
-            </label>
-
-            <label class="cp-field">
-              <span class="cp-field__label">Viewport Margin {{ settings.viewportMargin }}px</span>
-              <input
-                type="range" min="0" max="48" step="1"
-                :value="settings.viewportMargin"
-                @input="settings.updateSetting('viewportMargin', Number(($event.target as HTMLInputElement).value))"
-                class="cp-field__range"
-              />
-            </label>
-          </section>
-
-          <!-- Nav (dev only) -->
-          <section v-if="isLocal" class="cp-section">
-            <h3 class="cp-section__title">Nav Bar</h3>
-
-            <label class="cp-field">
-              <span class="cp-field__label">Nav Margin {{ settings.navMargin }}px</span>
-              <input
-                type="range" min="0" max="32" step="1"
-                :value="settings.navMargin"
-                @input="settings.updateSetting('navMargin', Number(($event.target as HTMLInputElement).value))"
-                class="cp-field__range"
-              />
-            </label>
-
-            <label class="cp-field">
-              <span class="cp-field__label">Nav Padding {{ settings.navPadding }}px</span>
-              <input
-                type="range" min="4" max="24" step="1"
-                :value="settings.navPadding"
-                @input="settings.updateSetting('navPadding', Number(($event.target as HTMLInputElement).value))"
-                class="cp-field__range"
-              />
-            </label>
-
-            <label class="cp-field">
-              <span class="cp-field__label">Nav Content Scale {{ settings.navScale.toFixed(1) }}x</span>
-              <input
-                type="range" min="0.5" max="2" step="0.1"
-                :value="settings.navScale"
-                @input="settings.updateSetting('navScale', Number(($event.target as HTMLInputElement).value))"
-                class="cp-field__range"
-              />
-            </label>
-          </section>
-
-          <!-- Glass Effect (dev only) -->
-          <section v-if="isLocal" class="cp-section">
-            <h3 class="cp-section__title">Glass Effect</h3>
-            <p class="cp-section__note">Refraction distortion: Chrome/Edge only</p>
-
-            <label class="cp-field">
-              <span class="cp-field__label">Refraction {{ settings.glassRefraction }}</span>
-              <input
-                type="range" min="0" max="100" step="1"
-                :value="settings.glassRefraction"
-                @input="settings.updateSetting('glassRefraction', Number(($event.target as HTMLInputElement).value))"
-                class="cp-field__range"
-              />
-            </label>
-
-            <label class="cp-field">
-              <span class="cp-field__label">Depth {{ settings.glassDepth }}</span>
-              <input
-                type="range" min="0" max="100" step="1"
-                :value="settings.glassDepth"
-                @input="settings.updateSetting('glassDepth', Number(($event.target as HTMLInputElement).value))"
-                class="cp-field__range"
-              />
-            </label>
-
-            <label class="cp-field">
-              <span class="cp-field__label">Dispersion {{ settings.glassDispersion }}</span>
-              <input
-                type="range" min="0" max="100" step="1"
-                :value="settings.glassDispersion"
-                @input="settings.updateSetting('glassDispersion', Number(($event.target as HTMLInputElement).value))"
-                class="cp-field__range"
-              />
-            </label>
-
-            <label class="cp-field">
-              <span class="cp-field__label">Frost {{ settings.glassFrost }}</span>
-              <input
-                type="range" min="0" max="100" step="1"
-                :value="settings.glassFrost"
-                @input="settings.updateSetting('glassFrost', Number(($event.target as HTMLInputElement).value))"
-                class="cp-field__range"
-              />
-            </label>
-
-            <label class="cp-field">
-              <span class="cp-field__label">Tint Color</span>
-              <input
-                type="color"
-                :value="settings.glassTint"
-                @input="settings.updateSetting('glassTint', ($event.target as HTMLInputElement).value)"
-                class="cp-field__color"
-              />
-            </label>
-
-            <label class="cp-field">
-              <span class="cp-field__label">Tint Opacity {{ settings.glassTintOpacity }}%</span>
-              <input
-                type="range" min="0" max="100" step="1"
-                :value="settings.glassTintOpacity"
-                @input="settings.updateSetting('glassTintOpacity', Number(($event.target as HTMLInputElement).value))"
-                class="cp-field__range"
               />
             </label>
           </section>
@@ -399,13 +236,6 @@ const colorOptions: { value: 'auto' | ColorScheme; label: string }[] = [
               />
             </label>
           </section>
-
-          <!-- Save as Default (dev only) -->
-          <section v-if="isLocal" class="cp-section">
-            <button class="cp-btn" @click="saveAsDefault">
-              {{ saveStatus }}
-            </button>
-          </section>
         </div>
       </div>
     </div>
@@ -413,7 +243,7 @@ const colorOptions: { value: 'auto' | ColorScheme; label: string }[] = [
 </template>
 
 <style scoped>
-.control-panel {
+.poster-panel {
   position: fixed;
   inset: 0;
   z-index: 200;
@@ -421,7 +251,7 @@ const colorOptions: { value: 'auto' | ColorScheme; label: string }[] = [
   justify-content: flex-end;
 }
 
-.control-panel__inner {
+.poster-panel__inner {
   width: 320px;
   max-width: 100vw;
   height: 100%;
@@ -433,7 +263,7 @@ const colorOptions: { value: 'auto' | ColorScheme; label: string }[] = [
   animation: slideInRight 0.25s ease;
 }
 
-.control-panel__header {
+.poster-panel__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -441,21 +271,25 @@ const colorOptions: { value: 'auto' | ColorScheme; label: string }[] = [
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.control-panel__header-right {
+.poster-panel__header-right {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.control-panel__autosave {
+.poster-panel__shortcut {
   font-family: 'Inter', sans-serif;
   font-size: 9px;
   letter-spacing: 0.08em;
   color: rgba(187, 255, 0, 0.5);
   text-transform: uppercase;
+  background: rgba(187, 255, 0, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(187, 255, 0, 0.2);
 }
 
-.control-panel__title {
+.poster-panel__title {
   font-family: 'Cooper Hewitt', sans-serif;
   font-weight: 900;
   font-size: 12px;
@@ -464,7 +298,7 @@ const colorOptions: { value: 'auto' | ColorScheme; label: string }[] = [
   color: rgba(255, 255, 255, 0.5);
 }
 
-.control-panel__close {
+.poster-panel__close {
   background: none;
   border: none;
   color: rgba(255, 255, 255, 0.5);
@@ -474,10 +308,10 @@ const colorOptions: { value: 'auto' | ColorScheme; label: string }[] = [
   padding: 0;
 }
 
-.control-panel__close:hover { color: white; }
-.control-panel__close .material-symbols-outlined { font-size: 20px; }
+.poster-panel__close:hover { color: white; }
+.poster-panel__close .material-symbols-outlined { font-size: 20px; }
 
-.control-panel__sections {
+.poster-panel__sections {
   padding: 8px 0;
 }
 
@@ -494,13 +328,6 @@ const colorOptions: { value: 'auto' | ColorScheme; label: string }[] = [
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.35);
   margin: 0 0 12px;
-}
-
-.cp-section__note {
-  font-family: 'Inter', sans-serif;
-  font-size: 9px;
-  color: rgba(187, 255, 0, 0.4);
-  margin: -8px 0 12px;
 }
 
 .cp-field {
@@ -533,7 +360,6 @@ const colorOptions: { value: 'auto' | ColorScheme; label: string }[] = [
   width: 100%;
 }
 
-/* Range slider with corner radius */
 .cp-field__range {
   -webkit-appearance: none;
   appearance: none;
@@ -594,30 +420,18 @@ const colorOptions: { value: 'auto' | ColorScheme; label: string }[] = [
   border-color: #BBFF00;
 }
 
-.cp-btn--secondary {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.cp-btn--secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.3);
-  color: white;
-}
-
 @keyframes slideInRight {
   from { transform: translateX(100%); }
   to { transform: translateX(0); }
 }
 
 @media (max-width: 768px) {
-  .control-panel {
+  .poster-panel {
     align-items: flex-end;
     justify-content: stretch;
   }
 
-  .control-panel__inner {
+  .poster-panel__inner {
     width: 100%;
     height: auto;
     max-height: 70vh;

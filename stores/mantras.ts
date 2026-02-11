@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 import type { Mantra, ColorScheme } from '~/types'
 import { SEED_MANTRAS } from '~/data/seed-mantras'
 import { POSTER_FONTS, fontCatalog } from '~/data/font-catalog'
-import { generateHarmonicPair } from '~/composables/useColorHarmony'
 
 const FIXED_SCHEMES: ColorScheme[] = ['black-on-white', 'white-on-black', 'neon-on-black', 'black-on-neon']
 const MAX_FEEDBACK = 20
@@ -24,20 +23,29 @@ function randomWeightForFont(slug: string): string {
   const font = fontCatalog.find(f => f.slug === slug)
   if (!font) return randomFrom(['700', '800', '900'])
   if (font.variable) {
-    // For variable fonts, pick a random weight 100–900
-    return String(Math.round((Math.random() * 800 + 100) / 100) * 100)
+    const wghtAxis = font.axes?.find(a => a.tag === 'wght')
+    if (wghtAxis) {
+      // Pick a random weight within the font's actual range, snapped to 100
+      const min = Math.ceil(wghtAxis.min / 100) * 100
+      const max = Math.floor(wghtAxis.max / 100) * 100
+      const steps = (max - min) / 100 + 1
+      return String(min + Math.floor(Math.random() * steps) * 100)
+    }
+    // Variable font with no wght axis (e.g. League Gothic) — return default
+    return String(font.weights[0]?.value ?? 400)
   }
   return String(font.weights[Math.floor(Math.random() * font.weights.length)].value)
 }
 
 function createMantraFromSeed(seed: { text: string; tone: number }, index: number): Mantra {
+  const font = randomFrom(POSTER_FONTS)
   return {
     id: generateId(),
     text: seed.text,
     createdAt: new Date(Date.now() - index * 60000).toISOString(),
     tone: seed.tone,
-    font: randomFrom(POSTER_FONTS),
-    fontWeight: randomFrom(['700', '800', '900']),
+    font,
+    fontWeight: randomWeightForFont(font),
     colorScheme: randomFrom(FIXED_SCHEMES),
   }
 }
@@ -73,13 +81,14 @@ export const useMantraStore = defineStore('mantras', {
     },
 
     addMantra(text: string, tone: number, font?: string, fontWeight?: string, colorScheme?: ColorScheme) {
+      const chosenFont = font || randomFrom(POSTER_FONTS)
       this.mantras.unshift({
         id: generateId(),
         text,
         createdAt: new Date().toISOString(),
         tone,
-        font: font || randomFrom(POSTER_FONTS),
-        fontWeight: fontWeight || randomFrom(['700', '800', '900']),
+        font: chosenFont,
+        fontWeight: fontWeight || randomWeightForFont(chosenFont),
         colorScheme: colorScheme || randomFrom(FIXED_SCHEMES),
       })
     },
@@ -107,11 +116,14 @@ export const useMantraStore = defineStore('mantras', {
     },
 
     randomizeFonts() {
-      this.mantras = this.mantras.map(m => ({
-        ...m,
-        font: randomFrom(POSTER_FONTS),
-        fontWeight: randomFrom(['700', '800', '900']),
-      }))
+      this.mantras = this.mantras.map(m => {
+        const font = randomFrom(POSTER_FONTS)
+        return {
+          ...m,
+          font,
+          fontWeight: randomWeightForFont(font),
+        }
+      })
     },
 
     /** Re-roll using the fixed 4 color schemes */
@@ -119,8 +131,6 @@ export const useMantraStore = defineStore('mantras', {
       this.mantras = this.mantras.map(m => ({
         ...m,
         colorScheme: randomFrom(FIXED_SCHEMES),
-        harmonicBg: undefined,
-        harmonicFg: undefined,
       }))
     },
 
@@ -133,21 +143,6 @@ export const useMantraStore = defineStore('mantras', {
           font,
           fontWeight: randomWeightForFont(font),
           colorScheme: randomFrom(FIXED_SCHEMES),
-          harmonicBg: undefined,
-          harmonicFg: undefined,
-        }
-      })
-    },
-
-    /** Re-roll using harmonious generated color pairs */
-    randomizeHarmonicColors() {
-      this.mantras = this.mantras.map(m => {
-        const pair = generateHarmonicPair()
-        return {
-          ...m,
-          colorScheme: 'harmonic' as ColorScheme,
-          harmonicBg: pair.bg,
-          harmonicFg: pair.fg,
         }
       })
     },

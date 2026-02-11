@@ -58,7 +58,7 @@ function handleShuffle() {
 }
 
 // Overlay state
-type OverlayType = 'info' | 'create' | 'settings' | null
+type OverlayType = 'info' | 'create' | 'poster' | 'interface' | null
 const activeOverlay = ref<OverlayType>(null)
 const selectedMantra = ref<Mantra | null>(null)
 
@@ -76,6 +76,10 @@ function navigatePoster(mantra: Mantra) {
 
 // Keyboard shortcuts
 function onKeydown(e: KeyboardEvent) {
+  // Don't intercept when typing in inputs
+  const tag = (e.target as HTMLElement)?.tagName
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+
   if (e.key === 'Escape') {
     if (selectedMantra.value) {
       closePoster()
@@ -85,8 +89,15 @@ function onKeydown(e: KeyboardEvent) {
     return
   }
 
+  // Shift+X → Interface panel
   if (e.shiftKey && e.key === 'X') {
-    activeOverlay.value = activeOverlay.value === 'settings' ? null : 'settings'
+    activeOverlay.value = activeOverlay.value === 'interface' ? null : 'interface'
+    return
+  }
+
+  // C → Poster design panel (no shift)
+  if (!e.shiftKey && !e.ctrlKey && !e.metaKey && e.key === 'c') {
+    activeOverlay.value = activeOverlay.value === 'poster' ? null : 'poster'
     return
   }
 
@@ -99,12 +110,12 @@ function onKeydown(e: KeyboardEvent) {
 onMounted(() => window.addEventListener('keydown', onKeydown))
 onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 
-// Dynamic grid styles
+// Dynamic grid styles — gridGap is used for both gap and viewport margin
 const gridStyle = computed(() => ({
   display: 'grid',
   gridTemplateColumns: `repeat(${settings.columns}, 1fr)`,
   gap: `${settings.gridGap}px`,
-  padding: `${settings.viewportMargin}px`,
+  padding: `${settings.gridGap}px`,
 }))
 </script>
 
@@ -117,7 +128,7 @@ const gridStyle = computed(() => ({
       @info="activeOverlay = 'info'"
       @create="activeOverlay = 'create'"
       @shuffle="handleShuffle"
-      @settings="activeOverlay = activeOverlay === 'settings' ? null : 'settings'"
+      @settings="activeOverlay = activeOverlay === 'interface' ? null : 'interface'"
     />
 
     <main v-if="hydrated" ref="gridRef" class="grid" :style="gridStyle">
@@ -151,8 +162,13 @@ const gridStyle = computed(() => ({
       @close="activeOverlay = null"
     />
 
-    <ControlPanel
-      v-if="activeOverlay === 'settings'"
+    <PosterPanel
+      v-if="activeOverlay === 'poster'"
+      @close="activeOverlay = null"
+    />
+
+    <InterfacePanel
+      v-if="activeOverlay === 'interface'"
       @close="activeOverlay = null"
     />
   </div>

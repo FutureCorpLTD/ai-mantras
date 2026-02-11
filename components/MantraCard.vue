@@ -74,11 +74,7 @@ const displayText = computed(() => {
 })
 
 const colors = computed(() => {
-  if (props.mantra.colorScheme === 'harmonic' && props.mantra.harmonicBg && props.mantra.harmonicFg) {
-    return { bg: props.mantra.harmonicBg, fg: props.mantra.harmonicFg }
-  }
-  return COLOR_SCHEMES[props.mantra.colorScheme as Exclude<typeof props.mantra.colorScheme, 'harmonic'>]
-    || COLOR_SCHEMES['black-on-white']
+  return COLOR_SCHEMES[props.mantra.colorScheme] || COLOR_SCHEMES['black-on-white']
 })
 
 const aspectRatio = computed(() =>
@@ -135,6 +131,7 @@ onMounted(() => {
         padding: `${posterPaddingPx}px`,
         fontFamily,
         fontWeight,
+        fontStretch: `${settings.fontWidth}%`,
         fontSize: `${fontSize}px`,
         letterSpacing: `${settings.letterSpacing}em`,
         lineHeight: settings.lineHeight,

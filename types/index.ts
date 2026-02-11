@@ -10,14 +10,11 @@ export interface Mantra {
   font: string // Font family slug
   fontWeight: string // CSS weight value or name
   colorScheme: ColorScheme
-  // Custom colors for 'harmonic' scheme
-  harmonicBg?: string
-  harmonicFg?: string
   // Taste feedback
   liked?: boolean
 }
 
-export type ColorScheme = 'black-on-white' | 'white-on-black' | 'neon-on-black' | 'black-on-neon' | 'harmonic'
+export type ColorScheme = 'black-on-white' | 'white-on-black' | 'neon-on-black' | 'black-on-neon'
 
 // ── Display / Renderer ──────────────────────────────────────
 // The display config is separate from the mantra data.
@@ -42,6 +39,7 @@ export interface Settings {
   // Typography
   font: string
   fontWeight: string
+  fontWidth: number // font-stretch / wdth axis (percentage, 100 = normal)
   fontStyle: 'normal' | 'italic'
   letterSpacing: number // em units
   lineHeight: number // multiplier
@@ -51,15 +49,11 @@ export interface Settings {
   // Poster size
   posterFormat: PosterFormat
 
-  // Color
-  colorMode: 'auto' | ColorScheme
-
   // Poster inner padding
   posterPadding: number // % of poster dimension
 
   // Layout
-  viewportMargin: number // px
-  gridGap: number // px base
+  gridGap: number // px (also used as viewport margin)
   singlePosterMargin: number // px
   backgroundColor: string // hex
 
@@ -96,6 +90,13 @@ export type PosterFormat = 'a4-portrait' | 'social-story'
 
 // ── Fonts ───────────────────────────────────────────────────
 
+export interface FontAxis {
+  tag: string // e.g. 'wght', 'wdth', 'opsz'
+  min: number
+  max: number
+  default: number
+}
+
 export interface FontFamily {
   slug: string
   name: string
@@ -103,6 +104,7 @@ export interface FontFamily {
   variable: boolean
   weights: FontWeight[]
   styles: ('normal' | 'italic')[]
+  axes?: FontAxis[]
 }
 
 export interface FontWeight {
@@ -123,7 +125,7 @@ export interface GenerateMantraResponse {
 
 // ── Color helpers ───────────────────────────────────────────
 
-export const COLOR_SCHEMES: Record<Exclude<ColorScheme, 'harmonic'>, { bg: string; fg: string }> = {
+export const COLOR_SCHEMES: Record<ColorScheme, { bg: string; fg: string }> = {
   'black-on-white': { bg: '#FFFFFF', fg: '#000000' },
   'white-on-black': { bg: '#000000', fg: '#FFFFFF' },
   'neon-on-black': { bg: '#000000', fg: '#BBFF00' },

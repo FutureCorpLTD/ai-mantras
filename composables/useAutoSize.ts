@@ -88,8 +88,10 @@ export function useAutoSize(
     fontSize.value = Math.max(4, Math.floor(best * 0.95))
   }
 
-  // Recalculate when text, font, or padding changes
-  watch([text, fontFamily, fontWeight, letterSpacing, lineHeight, posterPadding], () => {
+  // Recalculate when text, font, or padding changes.
+  // fontWeight is deliberately excluded — weight changes should NOT
+  // trigger font-size recalculation (that's the user's design choice).
+  watch([text, fontFamily, letterSpacing, lineHeight, posterPadding], () => {
     nextTick(calculate)
   })
 
