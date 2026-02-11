@@ -35,7 +35,7 @@ const formatOptions: { value: PosterFormat; label: string }[] = [
         <div class="poster-panel__header">
           <h2 class="poster-panel__title">POSTER DESIGN</h2>
           <div class="poster-panel__header-right">
-            <span class="poster-panel__shortcut">C</span>
+            <span class="poster-panel__shortcut">X</span>
             <button class="poster-panel__close" @click="emit('close')">
               <span class="material-symbols-outlined">close</span>
             </button>

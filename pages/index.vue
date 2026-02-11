@@ -34,14 +34,55 @@ const settings = useSettingsStore()
 const hydrated = ref(false)
 const gridRef = ref<HTMLElement | null>(null)
 
+// ── Column intro animation ────────────────────────────────────
+// On page load: start at max columns, ease down to target over ~4s.
+// The animating column count drives both grid and slider needle.
+const animatingColumns = ref<number | null>(null)
+const displayColumns = computed(() => animatingColumns.value ?? settings.columns)
+const introAnimating = ref(false)
+
+function runIntroAnimation(targetColumns: number) {
+  const maxCols = 20
+  if (targetColumns >= maxCols) return // nothing to animate
+
+  introAnimating.value = true
+  animatingColumns.value = maxCols
+  settings.updateSetting('columns', maxCols)
+
+  const totalDuration = 4000
+  const steps = maxCols - targetColumns
+  const stepDuration = totalDuration / steps
+
+  let current = maxCols
+  function step() {
+    if (current <= targetColumns) {
+      animatingColumns.value = null
+      settings.updateSetting('columns', targetColumns)
+      introAnimating.value = false
+      return
+    }
+    current--
+    animatingColumns.value = current
+    settings.updateSetting('columns', current)
+    setTimeout(step, stepDuration)
+  }
+
+  // Start after a brief delay for the grid to render
+  setTimeout(step, 300)
+}
+
 onMounted(() => {
   mantraStore.initialize()
   hydrated.value = true
 
   // Mobile: default to 1 column for first-time visitors
+  let targetColumns = settings.columns
   if (window.innerWidth <= 768 && !localStorage.getItem('settings')) {
-    settings.updateSetting('columns', 1)
+    targetColumns = 1
   }
+
+  // Run the intro animation from max columns → target
+  runIntroAnimation(targetColumns)
 })
 
 // Pinch-to-zoom on grid: spread = fewer columns, pinch = more
@@ -95,8 +136,8 @@ function onKeydown(e: KeyboardEvent) {
     return
   }
 
-  // C → Poster design panel (no shift)
-  if (!e.shiftKey && !e.ctrlKey && !e.metaKey && e.key === 'c') {
+  // X (no shift) → Poster design panel
+  if (!e.shiftKey && !e.ctrlKey && !e.metaKey && e.key === 'x') {
     activeOverlay.value = activeOverlay.value === 'poster' ? null : 'poster'
     return
   }
@@ -111,9 +152,10 @@ onMounted(() => window.addEventListener('keydown', onKeydown))
 onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 
 // Dynamic grid styles — gridGap is used for both gap and viewport margin
+// CSS transition on grid-template-columns for smooth column changes
 const gridStyle = computed(() => ({
   display: 'grid',
-  gridTemplateColumns: `repeat(${settings.columns}, 1fr)`,
+  gridTemplateColumns: `repeat(${displayColumns.value}, 1fr)`,
   gap: `${settings.gridGap}px`,
   padding: `${settings.gridGap}px`,
 }))
@@ -128,10 +170,10 @@ const gridStyle = computed(() => ({
       @info="activeOverlay = 'info'"
       @create="activeOverlay = 'create'"
       @shuffle="handleShuffle"
-      @settings="activeOverlay = activeOverlay === 'interface' ? null : 'interface'"
+      @settings="activeOverlay = activeOverlay === 'poster' ? null : 'poster'"
     />
 
-    <main v-if="hydrated" ref="gridRef" class="grid" :style="gridStyle">
+    <main v-if="hydrated" ref="gridRef" class="grid" :class="{ 'grid--animating': introAnimating }" :style="gridStyle">
       <MantraCard
         v-for="(mantra, i) in mantraStore.sorted"
         :key="mantra.id"
@@ -183,5 +225,10 @@ const gridStyle = computed(() => ({
 .grid {
   padding-bottom: 48px; /* space for grid slider */
   touch-action: pan-y; /* allow vertical scroll, intercept pinch */
+  transition: grid-template-columns 0.35s ease;
+}
+
+.grid--animating {
+  transition: grid-template-columns 0.15s ease;
 }
 </style>
